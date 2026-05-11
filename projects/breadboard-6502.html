@@ -41,6 +41,17 @@
       <span class="coming-soon">code/repo coming soon</span>
 
       <section class="project-body">
+        <aside class="inspiration-credit">
+          <p>
+            <strong>Inspiration & credits:</strong> this build follows
+            <a href="https://eater.net/6502" target="_blank" rel="noopener">Ben Eater</a>'s
+            6502 computer series — his videos and schematics are what made the project
+            tractable. The bill of materials below is reproduced from his kit listing
+            at <a href="https://eater.net/6502" target="_blank" rel="noopener">eater.net/6502</a>;
+            the build, wiring, and program code are mine.
+          </p>
+        </aside>
+
         <h2>The computer</h2>
         <p>
           A MOS 6502 microprocessor wired up with SRAM, an EEPROM-based ROM, and discrete
@@ -64,6 +75,74 @@
           when /RD goes high, when the address bus changes relative to the clock, how
           memory-mapped IO works. Then building a video card from logic gates demystifies
           how anything ever showed up on a screen before GPUs.
+        </p>
+
+        <h2>Parts list</h2>
+        <p>
+          Bill of materials for the 6502 computer — drawn from Ben Eater's published
+          list at <a href="https://eater.net/6502" target="_blank" rel="noopener">eater.net/6502</a>.
+          Quantities only; prices omitted. (The discrete-logic VGA card uses a
+          separate BOM, not listed here.)
+        </p>
+
+        <div class="parts-list">
+          <div class="parts-group">
+            <h3>CPU &amp; memory</h3>
+            <ul>
+              <li><span class="qty">1×</span><span class="part">W65C02 — 6502 CPU</span></li>
+              <li><span class="qty">1×</span><span class="part">28C256 — 32K EEPROM (ROM)</span></li>
+              <li><span class="qty">1×</span><span class="part">62256 — 32K SRAM (RAM)</span></li>
+            </ul>
+          </div>
+
+          <div class="parts-group">
+            <h3>I/O &amp; glue logic</h3>
+            <ul>
+              <li><span class="qty">1×</span><span class="part">W65C22 — Versatile Interface Adapter (VIA)</span></li>
+              <li><span class="qty">1×</span><span class="part">74HC00 — quad 2-input NAND (address decode)</span></li>
+            </ul>
+          </div>
+
+          <div class="parts-group">
+            <h3>Display &amp; controls</h3>
+            <ul>
+              <li><span class="qty">1×</span><span class="part">16×2 character LCD (yellow backlight)</span></li>
+              <li><span class="qty">1×</span><span class="part">10 kΩ potentiometer (LCD contrast)</span></li>
+              <li><span class="qty">8×</span><span class="part">Tact switch</span></li>
+              <li><span class="qty">10×</span><span class="part">Red LED</span></li>
+            </ul>
+          </div>
+
+          <div class="parts-group">
+            <h3>Clock</h3>
+            <ul>
+              <li><span class="qty">1×</span><span class="part">1 MHz crystal oscillator can</span></li>
+            </ul>
+          </div>
+
+          <div class="parts-group">
+            <h3>Passives</h3>
+            <ul>
+              <li><span class="qty">10×</span><span class="part">220 Ω resistor</span></li>
+              <li><span class="qty">10×</span><span class="part">1 kΩ resistor</span></li>
+              <li><span class="qty">10×</span><span class="part">0.1 µF capacitor</span></li>
+            </ul>
+          </div>
+
+          <div class="parts-group">
+            <h3>Breadboards &amp; wiring</h3>
+            <ul>
+              <li><span class="qty">3×</span><span class="part">BB830 breadboard</span></li>
+              <li><span class="qty">40×</span><span class="part">20 cm jumper wires</span></li>
+              <li><span class="qty">1×</span><span class="part">Hookup wire — assorted colors &amp; lengths</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="parts-note">
+          <em>Not in the kit BOM — sourced separately:</em>
+          EEPROM programmer (Ben Eater's Arduino-based programmer, or equivalent), and
+          a 5 V power supply.
         </p>
 
         <dl class="specs">

@@ -689,6 +689,13 @@ main {
 
 .parts-group .part { flex: 1; }
 
+.parts-note {
+  margin: 0 0 36px;
+  font-size: 13.5px;
+  color: var(--muted);
+  max-width: 720px;
+}
+
 /* ---------- Notion-style code block ---------- */
 .code-block {
   margin: 28px 0;
