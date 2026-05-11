@@ -3,3 +3,9 @@
 .idea/
 .vscode/
 node_modules/
+
+# workspace files (not for the public site)
+.claude
+.mcp.json
+.session_token
+CLAUDE.md

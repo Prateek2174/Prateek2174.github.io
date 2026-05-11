@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IR Night Vision Headset — Prateek Singh</title>
+  <meta name="description" content="IR Night Vision Headset — a project by Prateek Singh." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <header class="nav">
+    <a class="nav-brand" href="../index.html"><span class="dot"></span>prateek singh</a>
+    <nav class="nav-links">
+      <a href="../index.html#projects">projects</a>
+      <a href="../index.html#about">about</a>
+      <a href="../index.html#contact">contact</a>
+    </nav>
+  </header>
+  <main>
+    <article class="project-page">
+      <p class="eyebrow">case 01 · Capstone · MTE 481</p>
+      <h1>IR night vision headset</h1>
+      <p class="tagline">
+        A head-mounted IR night-vision system. My half was the FPGA pipeline — camera capture
+        through to display output, all in Verilog.
+      </p>
+
+      <div class="project-meta-row">
+        <span class="tag code">Verilog</span>
+        <span class="tag">FPGA</span>
+        <span class="tag">Gowin EDA</span>
+        <span class="tag">Tang Primer 25K</span>
+        <span class="tag">OV5640</span>
+      </div>
+
+      <section class="project-body">
+        <h2>What it does</h2>
+        <p>
+          An OV5640 CMOS camera captures the scene under IR illumination. The FPGA takes
+          the video in over DVP, lines it up through a small on-chip line buffer, and
+          drives a pair of FLCOS micro-displays — one per eye — at 60 Hz. No host
+          processor in the loop, no full frame buffer, so latency stays in the sub-frame range.
+        </p>
+
+        <h2>My role</h2>
+        <p>
+          I wrote the FPGA firmware in Verilog and synthesized it in Gowin EDA, targeting a
+          Sipeed Tang Primer 25K. What's in the final build, end-to-end: DVP capture from
+          the OV5640, a bit-banged I²C sequencer that brings up both the camera and the
+          display panels against their register sets, a 30-line buffer on the display path,
+          PLL clock-domain plumbing, and the top-level that wires it all together. My
+          capstone team handled the PCB and the undocumented FLCOS display panels.
+        </p>
+
+        <figure class="module-shot">
+          <img src="../assets/verilog-modules.png" alt="Tree of Verilog source files showing the modules I shipped and the experiments I cut." />
+          <figcaption>
+            The Verilog modules I built. Red ×'s are dead ends I cut along the way —
+            an early FSM-driven I²C controller, the thermal-overlay branch, the analog
+            FPV path (TVP5151), and a couple of earlier DVP rewrites.
+          </figcaption>
+        </figure>
+
+        <h2>What was hard</h2>
+        <p>
+          Three pieces of scope didn't make the final build. A thermal overlay — the
+          thermal sensor wouldn't initialize reliably over I²C. An analog FPV input —
+          the TVP5151 decoder had timing and colorspace issues we couldn't crack in
+          time. And HyperRAM as a full frame buffer — we got it talking, but the data
+          comes back corrupted somewhere in the path, so it sits in the tree but isn't
+          wired into the final pipeline yet.
+        </p>
+        <p>
+          On the parts that did ship, I rewrote the DVP capture twice and swapped the
+          I²C controller from a proper FSM to a bit-bang sequencer before the camera
+          came up cleanly. FPGA debug isn't kind — no <code>printf</code>, no stack
+          trace, a timing violation just shows up as a glitchy display, so you debug
+          by staring at a waveform.
+        </p>
+
+        <dl class="specs">
+          <div><dt>Platform</dt><dd>Sipeed Tang Primer 25K (Gowin GW5A FPGA)</dd></div>
+          <div><dt>Toolchain</dt><dd>Gowin EDA</dd></div>
+          <div><dt>HDL</dt><dd>Verilog</dd></div>
+          <div><dt>Camera</dt><dd>OV5640 over DVP, I²C-configured</dd></div>
+          <div><dt>Display</dt><dd>2× FLCOS micro-displays @ 60 Hz, I²C-configured</dd></div>
+          <div><dt>Buffering</dt><dd>30-line on-chip buffer (HyperRAM WIP)</dd></div>
+        </dl>
+
+        <figure class="team-shot">
+          <img src="../assets/capstone-team.jpg" alt="The capstone team at the project showcase." />
+          <figcaption>The capstone team at the showcase.</figcaption>
+        </figure>
+      </section>
+
+      <div class="page-end">
+        <a href="../index.html#projects">← back to projects</a>
+        <a href="../index.html#contact">get in touch →</a>
+      </div>
+    </article>
+  </main>
+  <footer class="footer">
+    <p>© <span id="year"></span> Prateek Singh.</p>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
