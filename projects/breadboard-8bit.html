@@ -125,6 +125,121 @@
           <figcaption>Output register — latches a byte off the bus and drives a 7-segment display, with an EEPROM as the binary-to-segment lookup table. Schematic from <a href="https://eater.net/" target="_blank" rel="noopener">eater.net</a>.</figcaption>
         </figure>
 
+        <h2>Parts list</h2>
+        <p>
+          Bill of materials — drawn from Ben Eater's published list at
+          <a href="https://eater.net/8bit/parts" target="_blank" rel="noopener">eater.net/8bit/parts</a>.
+          Quantities only; prices omitted.
+        </p>
+
+        <div class="parts-list">
+          <div class="parts-group">
+            <h3>Breadboards &amp; wiring</h3>
+            <ul>
+              <li><span class="qty">14×</span><span class="part">Breadboard</span></li>
+              <li><span class="qty">1×</span><span class="part">22 AWG solid tinned-copper hook-up wire</span></li>
+            </ul>
+          </div>
+
+          <div class="parts-group">
+            <h3>Resistors</h3>
+            <ul>
+              <li><span class="qty">10×</span><span class="part">1 kΩ resistor</span></li>
+              <li><span class="qty">9×</span><span class="part">10 kΩ resistor</span></li>
+              <li><span class="qty">1×</span><span class="part">100 kΩ resistor</span></li>
+              <li><span class="qty">24×</span><span class="part">470 Ω resistor</span></li>
+              <li><span class="qty">1×</span><span class="part">1 MΩ resistor</span></li>
+              <li><span class="qty">1×</span><span class="part">1 MΩ potentiometer</span></li>
+            </ul>
+          </div>
+
+          <div class="parts-group">
+            <h3>Capacitors</h3>
+            <ul>
+              <li><span class="qty">6×</span><span class="part">0.01 µF capacitor</span></li>
+              <li><span class="qty">16×</span><span class="part">0.1 µF capacitor</span></li>
+              <li><span class="qty">1×</span><span class="part">1 µF capacitor</span></li>
+            </ul>
+          </div>
+
+          <div class="parts-group">
+            <h3>Clock module</h3>
+            <ul>
+              <li><span class="qty">4×</span><span class="part">555 timer IC</span></li>
+            </ul>
+          </div>
+
+          <div class="parts-group">
+            <h3>Logic gates &amp; basic ICs</h3>
+            <ul>
+              <li><span class="qty">2×</span><span class="part">74LS00 — quad NAND</span></li>
+              <li><span class="qty">1×</span><span class="part">74LS02 — quad NOR</span></li>
+              <li><span class="qty">5×</span><span class="part">74LS04 — hex inverter</span></li>
+              <li><span class="qty">3×</span><span class="part">74LS08 — quad AND</span></li>
+              <li><span class="qty">1×</span><span class="part">74LS32 — quad OR</span></li>
+              <li><span class="qty">2×</span><span class="part">74LS86 — quad XOR</span></li>
+            </ul>
+          </div>
+
+          <div class="parts-group">
+            <h3>Registers &amp; counters</h3>
+            <ul>
+              <li><span class="qty">1×</span><span class="part">74LS107 — dual JK flip-flop</span></li>
+              <li><span class="qty">8×</span><span class="part">74LS173 — 4-bit D register</span></li>
+              <li><span class="qty">1×</span><span class="part">74LS273 — octal D flip-flop</span></li>
+              <li><span class="qty">2×</span><span class="part">74LS161 — 4-bit binary counter</span></li>
+            </ul>
+          </div>
+
+          <div class="parts-group">
+            <h3>Multiplexers &amp; decoders</h3>
+            <ul>
+              <li><span class="qty">1×</span><span class="part">74LS138 — 3-to-8 decoder</span></li>
+              <li><span class="qty">1×</span><span class="part">74LS139 — dual 2-to-4 decoder</span></li>
+              <li><span class="qty">4×</span><span class="part">74LS157 — quad 2-to-1 mux</span></li>
+            </ul>
+          </div>
+
+          <div class="parts-group">
+            <h3>ALU &amp; memory</h3>
+            <ul>
+              <li><span class="qty">2×</span><span class="part">74LS283 — 4-bit binary adder</span></li>
+              <li><span class="qty">2×</span><span class="part">74189 — 64-bit RAM</span></li>
+            </ul>
+          </div>
+
+          <div class="parts-group">
+            <h3>Bus &amp; control</h3>
+            <ul>
+              <li><span class="qty">6×</span><span class="part">74LS245 — octal bus transceiver</span></li>
+              <li><span class="qty">3×</span><span class="part">28C16 EEPROM</span></li>
+            </ul>
+          </div>
+
+          <div class="parts-group">
+            <h3>Input / output</h3>
+            <ul>
+              <li><span class="qty">3×</span><span class="part">Double-throw toggle switch</span></li>
+              <li><span class="qty">3×</span><span class="part">Momentary 6 mm tact switch</span></li>
+              <li><span class="qty">1×</span><span class="part">8-position DIP switch</span></li>
+              <li><span class="qty">1×</span><span class="part">4-position DIP switch</span></li>
+              <li><span class="qty">44×</span><span class="part">Red LED</span></li>
+              <li><span class="qty">8×</span><span class="part">Yellow LED</span></li>
+              <li><span class="qty">12×</span><span class="part">Green LED</span></li>
+              <li><span class="qty">21×</span><span class="part">Blue LED</span></li>
+              <li><span class="qty">4×</span><span class="part">Common-cathode 7-segment display</span></li>
+            </ul>
+          </div>
+
+          <div class="parts-group">
+            <h3>EEPROM programmer</h3>
+            <ul>
+              <li><span class="qty">1×</span><span class="part">Arduino Nano</span></li>
+              <li><span class="qty">2×</span><span class="part">74HC595 — shift register</span></li>
+            </ul>
+          </div>
+        </div>
+
         <dl class="specs">
           <div><dt>Word size</dt><dd>8-bit</dd></div>
           <div><dt>Logic</dt><dd>Discrete 7400-series chips</dd></div>
