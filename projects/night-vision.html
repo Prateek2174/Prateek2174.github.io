@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IR Night Vision Headset — Prateek Singh</title>
-  <meta name="description" content="IR Night Vision Headset — a project by Prateek Singh." />
+  <title>Vision AI — IR Night Vision Headset — Prateek Singh</title>
+  <meta name="description" content="Vision AI — a low-latency IR night-vision headset. FPGA video pipeline in Verilog on a Tang Primer 25K." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -22,10 +22,11 @@
   <main>
     <article class="project-page">
       <p class="eyebrow">case 01 · Capstone · MTE 481</p>
-      <h1>IR night vision headset</h1>
+      <h1>Vision AI <span class="title-sub">— IR night vision headset</span></h1>
       <p class="tagline">
-        A head-mounted IR night-vision system. My half was the FPGA pipeline — camera capture
-        through to display output, all in Verilog.
+        A head-mounted, low-latency IR night-vision system — built with a capstone team
+        and branded <strong>Vision AI</strong>. My half was the FPGA video pipeline,
+        camera capture through to display output, all in Verilog.
       </p>
 
       <div class="project-meta-row">
@@ -36,14 +37,24 @@
         <span class="tag">OV5640</span>
       </div>
 
+      <figure class="hero-shot">
+        <img src="../assets/nv-headset.jpg" alt="The Vision AI headset and its umbilical control box." />
+        <figcaption>Vision AI — the finished headset with its umbilical control box.</figcaption>
+      </figure>
+
       <section class="project-body">
         <h2>What it does</h2>
         <p>
-          An OV5640 CMOS camera captures the scene under IR illumination. The FPGA takes
-          the video in over DVP, lines it up through a small on-chip line buffer, and
-          drives a pair of FLCOS micro-displays — one per eye — at 60 Hz. No host
-          processor in the loop, no full frame buffer, so latency stays in the sub-frame range.
+          Vision AI takes an OV5640 CMOS camera under IR illumination, runs the video
+          through an FPGA pipeline, and drives a pair of FLCOS micro-displays — one per
+          eye — at 60 Hz. No host processor in the loop, no full frame buffer, so
+          latency stays in the sub-frame range.
         </p>
+
+        <figure class="device-shot">
+          <img src="../assets/nv-topdown.jpg" alt="Top-down view of the Vision AI headset internals, showing the FLCOS display modules." />
+          <figcaption>Inside the headset — the twin FLCOS display modules (red) sit centered behind the eyepieces.</figcaption>
+        </figure>
 
         <h2>My role</h2>
         <p>
@@ -89,6 +100,11 @@
           <div><dt>Display</dt><dd>2× FLCOS micro-displays @ 60 Hz, I²C-configured</dd></div>
           <div><dt>Buffering</dt><dd>30-line on-chip buffer (HyperRAM WIP)</dd></div>
         </dl>
+
+        <figure class="booth-shot">
+          <img src="../assets/nv-booth.jpg" alt="Vision AI at the capstone symposium showcase." />
+          <figcaption>Vision AI at the symposium — final poster and demo unit on the table.</figcaption>
+        </figure>
 
         <figure class="team-shot">
           <img src="../assets/capstone-team.jpg" alt="The capstone team at the project showcase." />
