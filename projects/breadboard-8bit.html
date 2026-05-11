@@ -36,9 +36,26 @@
         <span class="tag">assembly</span>
       </div>
 
+      <figure class="hero-shot">
+        <img src="../8bit_breadboard_images/high-level.png" alt="High-level architecture of the 8-bit breadboard CPU — bus, registers, ALU, RAM, instruction register, control unit." />
+        <figcaption>High-level architecture — shared 8-bit bus tying together the registers, ALU, RAM, instruction register, and microcoded control unit.</figcaption>
+      </figure>
+
       <span class="coming-soon">code/repo coming soon</span>
 
       <section class="project-body">
+        <aside class="inspiration-credit">
+          <p>
+            <strong>Inspiration & credits:</strong> this build follows
+            <a href="https://eater.net/" target="_blank" rel="noopener">Ben Eater</a>'s
+            8-bit breadboard computer series — his videos and published schematics are
+            what made the project tractable. The schematic diagrams on this page are
+            reproduced from
+            <a href="https://eater.net/" target="_blank" rel="noopener">eater.net</a>
+            and remain his work; the build, wiring, and program code are mine.
+          </p>
+        </aside>
+
         <h2>What it is</h2>
         <p>
           A working 8-bit computer built entirely from 7400-series logic and a few 74181-style
@@ -56,6 +73,26 @@
           <li>A <strong>control unit</strong> that drives the right enable/load lines for each instruction in the ISA.</li>
         </ul>
 
+        <figure class="device-shot">
+          <img src="../8bit_breadboard_images/clock.png" alt="Schematic of the 555-based clock module with adjustable speed and single-step modes." />
+          <figcaption>Clock module — 555-based oscillator with manual single-step and a halt input. Schematic from <a href="https://eater.net/" target="_blank" rel="noopener">eater.net</a>.</figcaption>
+        </figure>
+
+        <figure class="device-shot">
+          <img src="../8bit_breadboard_images/a-register.png" alt="Schematic of the A register — D-flip-flops with tristate output onto the shared bus." />
+          <figcaption>A register — 8-bit D-flip-flop register with a tristate buffer onto the shared bus. Schematic from <a href="https://eater.net/" target="_blank" rel="noopener">eater.net</a>.</figcaption>
+        </figure>
+
+        <figure class="device-shot">
+          <img src="../8bit_breadboard_images/b-register.png" alt="Schematic of the B register — same topology as the A register, used as the ALU's second operand." />
+          <figcaption>B register — same topology, feeds the ALU as the second operand. Schematic from <a href="https://eater.net/" target="_blank" rel="noopener">eater.net</a>.</figcaption>
+        </figure>
+
+        <figure class="device-shot">
+          <img src="../8bit_breadboard_images/alu.png" alt="Schematic of the 8-bit ALU built from 74LS283 adders with subtract via XOR inversion." />
+          <figcaption>ALU — two 74LS283 4-bit adders cascaded to 8 bits, with subtract implemented by XOR-inverting B and asserting carry-in. Schematic from <a href="https://eater.net/" target="_blank" rel="noopener">eater.net</a>.</figcaption>
+        </figure>
+
         <h2>The instruction set</h2>
         <p>
           I designed a small custom ISA tailored to the hardware — load, store, add, sub,
@@ -63,6 +100,16 @@
           written in mnemonics and burned into the RAM. Turing-completeness comes from the
           combination of conditional branching, memory writes, and unbounded program length.
         </p>
+
+        <figure class="device-shot">
+          <img src="../8bit_breadboard_images/ir.png" alt="Schematic of the instruction register — latches the current opcode and exposes it to the control unit." />
+          <figcaption>Instruction register — latches the current opcode off the bus and exposes its top nibble to the control unit. Schematic from <a href="https://eater.net/" target="_blank" rel="noopener">eater.net</a>.</figcaption>
+        </figure>
+
+        <figure class="device-shot">
+          <img src="../8bit_breadboard_images/control.png" alt="Schematic of the microcoded control unit — EEPROMs decoding opcode + step counter into control-line bitmaps." />
+          <figcaption>Control unit — two EEPROMs decoding <code>(opcode, step)</code> into the bitmap of enable/load lines that drive each micro-op. Schematic from <a href="https://eater.net/" target="_blank" rel="noopener">eater.net</a>.</figcaption>
+        </figure>
 
         <h2>Why do it</h2>
         <p>
@@ -79,6 +126,11 @@
           <div><dt>Memory</dt><dd>RAM module + microcoded control ROM</dd></div>
           <div><dt>Programmability</dt><dd>Custom ISA + hand-assembler</dd></div>
         </dl>
+
+        <figure class="device-shot">
+          <img src="../8bit_breadboard_images/output.png" alt="Schematic of the output register driving a 7-segment display via a lookup-table EEPROM." />
+          <figcaption>Output register — latches a byte off the bus and drives a 7-segment display, with an EEPROM as the binary-to-segment lookup table. Schematic from <a href="https://eater.net/" target="_blank" rel="noopener">eater.net</a>.</figcaption>
+        </figure>
       </section>
 
       <div class="page-end">

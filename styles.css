@@ -806,6 +806,33 @@ figcaption {
   line-height: 1.55;
 }
 
+/* inspiration / attribution callout */
+.inspiration-credit {
+  margin: 24px 0 32px;
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent, #e8b341);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elev);
+}
+.inspiration-credit p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.inspiration-credit strong {
+  color: var(--fg);
+  font-weight: 600;
+}
+.inspiration-credit a {
+  color: var(--fg);
+  border-bottom: 1px dashed var(--line);
+}
+.inspiration-credit a:hover {
+  color: var(--accent, #e8b341);
+}
+
 /* back-to-projects bottom link */
 .page-end {
   margin: 72px 0 0;
