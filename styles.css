@@ -729,6 +729,20 @@ main {
 
 .repo-link .gh { color: var(--accent); font-weight: 600; }
 
+/* "code coming soon" pill — used on projects without a public repo yet */
+.coming-soon {
+  display: inline-block;
+  margin: 8px 0 36px;
+  padding: 8px 14px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--bg-elev);
+  letter-spacing: 0.02em;
+}
+
 /* figures */
 figure {
   margin: 32px 0;

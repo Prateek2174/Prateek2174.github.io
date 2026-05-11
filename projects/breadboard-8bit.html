@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>8-bit Breadboard Computer — Prateek Singh</title>
+  <meta name="description" content="A Turing-complete 8-bit computer built from discrete logic on breadboards. Custom ISA + assembler." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <header class="nav">
+    <a class="nav-brand" href="../index.html"><span class="dot"></span>prateek singh</a>
+    <nav class="nav-links">
+      <a href="../index.html#projects">projects</a>
+      <a href="../index.html#about">about</a>
+      <a href="../index.html#contact">contact</a>
+    </nav>
+  </header>
+  <main>
+    <article class="project-page">
+      <p class="eyebrow">case 03 · Personal · 2024 – 2025</p>
+      <h1>8-bit breadboard computer</h1>
+      <p class="tagline">
+        A Turing-complete 8-bit CPU wired up from discrete logic chips on breadboards —
+        ALU, registers, RAM, clock, control unit. Custom assembly language for programming it.
+      </p>
+
+      <div class="project-meta-row">
+        <span class="tag code">Hardware</span>
+        <span class="tag">discrete logic</span>
+        <span class="tag">TTL</span>
+        <span class="tag">8-bit</span>
+        <span class="tag">assembly</span>
+      </div>
+
+      <span class="coming-soon">code/repo coming soon</span>
+
+      <section class="project-body">
+        <h2>What it is</h2>
+        <p>
+          A working 8-bit computer built entirely from 7400-series logic and a few 74181-style
+          ALU chips on breadboards — no microcontroller, no FPGA, no shortcuts. The CPU has
+          a real ALU, an 8-bit register file, a RAM module, a clock module, and a microcoded
+          control unit that decodes a small instruction set.
+        </p>
+
+        <h2>What I built</h2>
+        <ul>
+          <li>An <strong>ALU</strong> capable of add/subtract and bitwise ops on 8-bit operands.</li>
+          <li>An <strong>8-bit register file</strong> built from D-flip-flops with tristate outputs onto the shared bus.</li>
+          <li>A <strong>RAM module</strong> with address-latched reads/writes.</li>
+          <li>A <strong>clock module</strong> with adjustable frequency and single-step debugging.</li>
+          <li>A <strong>control unit</strong> that drives the right enable/load lines for each instruction in the ISA.</li>
+        </ul>
+
+        <h2>The instruction set</h2>
+        <p>
+          I designed a small custom ISA tailored to the hardware — load, store, add, sub,
+          jump, conditional branch, halt — and wrote a hand-assembler so programs could be
+          written in mnemonics and burned into the RAM. Turing-completeness comes from the
+          combination of conditional branching, memory writes, and unbounded program length.
+        </p>
+
+        <h2>Why do it</h2>
+        <p>
+          Software engineers usually treat the CPU as a black box. Building one from gates
+          makes everything below the C abstraction concrete: what an instruction <em>is</em>,
+          what a register <em>is</em>, how a clock advances state. Every higher-level
+          decision later — pipelines, cache coherence, memory ordering — makes sense once
+          you've seen the gates underneath.
+        </p>
+
+        <dl class="specs">
+          <div><dt>Word size</dt><dd>8-bit</dd></div>
+          <div><dt>Logic</dt><dd>Discrete 7400-series chips</dd></div>
+          <div><dt>Memory</dt><dd>RAM module + microcoded control ROM</dd></div>
+          <div><dt>Programmability</dt><dd>Custom ISA + hand-assembler</dd></div>
+        </dl>
+      </section>
+
+      <div class="page-end">
+        <a href="../index.html#projects">← back to projects</a>
+        <a href="../index.html#contact">get in touch →</a>
+      </div>
+    </article>
+  </main>
+  <footer class="footer">
+    <p>© <span id="year"></span> Prateek Singh.</p>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

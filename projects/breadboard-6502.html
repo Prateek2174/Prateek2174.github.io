@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>6502 Breadboard Computer + VGA Card — Prateek Singh</title>
+  <meta name="description" content="A 6502-based 8-bit computer on breadboards, with a discrete-logic VGA video card driving a real monitor." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <header class="nav">
+    <a class="nav-brand" href="../index.html"><span class="dot"></span>prateek singh</a>
+    <nav class="nav-links">
+      <a href="../index.html#projects">projects</a>
+      <a href="../index.html#about">about</a>
+      <a href="../index.html#contact">contact</a>
+    </nav>
+  </header>
+  <main>
+    <article class="project-page">
+      <p class="eyebrow">case 04 · Personal · 2024 – 2025</p>
+      <h1>6502 breadboard computer<span class="title-sub">+ discrete-logic VGA graphics card</span></h1>
+      <p class="tagline">
+        A working 8-bit computer based on the 6502 microprocessor, wired up from scratch
+        with SRAM, EEPROM, and address-decoding logic — paired with a TTL-logic video card
+        that generates real VGA signals to a monitor.
+      </p>
+
+      <div class="project-meta-row">
+        <span class="tag code">Hardware</span>
+        <span class="tag">6502</span>
+        <span class="tag">Assembly</span>
+        <span class="tag">VGA</span>
+        <span class="tag">EEPROM</span>
+        <span class="tag">TTL</span>
+      </div>
+
+      <span class="coming-soon">code/repo coming soon</span>
+
+      <section class="project-body">
+        <h2>The computer</h2>
+        <p>
+          A MOS 6502 microprocessor wired up with SRAM, an EEPROM-based ROM, and discrete
+          address-decoding logic. Programs are written in 6502 assembly, hand-assembled,
+          and burned to the EEPROM. On power-up the CPU fetches the reset vector and runs
+          straight out of ROM.
+        </p>
+
+        <h2>The video card</h2>
+        <p>
+          A separate breadboard handles video output. It's a discrete-logic VGA generator
+          built from TTL counters and shift registers — generating HSYNC, VSYNC, and a
+          pixel clock at standard VGA timings, scanning a tiny framebuffer out to the
+          monitor. The output works on a real VGA monitor with no driver chip in between.
+        </p>
+
+        <h2>Why do it</h2>
+        <p>
+          The 6502 is the CPU that ran the Apple II, Commodore 64, and the NES. Wiring one
+          up by hand teaches you how an old computer actually worked at the bus level —
+          when /RD goes high, when the address bus changes relative to the clock, how
+          memory-mapped IO works. Then building a video card from logic gates demystifies
+          how anything ever showed up on a screen before GPUs.
+        </p>
+
+        <dl class="specs">
+          <div><dt>CPU</dt><dd>MOS 6502</dd></div>
+          <div><dt>Memory</dt><dd>SRAM (RAM) + EEPROM (ROM)</dd></div>
+          <div><dt>Programming</dt><dd>6502 assembly → hand-assembled → EEPROM</dd></div>
+          <div><dt>Video</dt><dd>TTL-logic VGA generator (HSYNC, VSYNC, pixel clock)</dd></div>
+        </dl>
+      </section>
+
+      <div class="page-end">
+        <a href="../index.html#projects">← back to projects</a>
+        <a href="../index.html#contact">get in touch →</a>
+      </div>
+    </article>
+  </main>
+  <footer class="footer">
+    <p>© <span id="year"></span> Prateek Singh.</p>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

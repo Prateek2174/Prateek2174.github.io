@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Autonomous Robot Navigation (MTE 544) — Prateek Singh</title>
+  <meta name="description" content="A* path planning + particle filter localization + PID trajectory control on a ROS2 mobile robot." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <header class="nav">
+    <a class="nav-brand" href="../index.html"><span class="dot"></span>prateek singh</a>
+    <nav class="nav-links">
+      <a href="../index.html#projects">projects</a>
+      <a href="../index.html#about">about</a>
+      <a href="../index.html#contact">contact</a>
+    </nav>
+  </header>
+  <main>
+    <article class="project-page">
+      <p class="eyebrow">case 05 · MTE 544 · 2025</p>
+      <h1>Autonomous mobile robot navigation</h1>
+      <p class="tagline">
+        A full stack for getting a mobile robot from A to B on its own — A* path planning,
+        particle filter localization from LiDAR and odometry, and PID trajectory control.
+        Built on ROS2 in Python.
+      </p>
+
+      <div class="project-meta-row">
+        <span class="tag code">Python</span>
+        <span class="tag">ROS2</span>
+        <span class="tag">A*</span>
+        <span class="tag">particle filter</span>
+        <span class="tag">PID</span>
+        <span class="tag">LiDAR</span>
+        <span class="tag">Rviz</span>
+      </div>
+
+      <span class="coming-soon">code/repo coming soon</span>
+
+      <section class="project-body">
+        <h2>What it does</h2>
+        <p>
+          The robot is given a goal pose. It plans a path to that goal across an occupancy
+          grid, estimates its own pose in real time from sensor fusion, and follows the
+          path with a feedback controller. The whole loop runs over ROS2 topics, visualized
+          live in Rviz.
+        </p>
+
+        <h2>The stack</h2>
+        <ul>
+          <li>
+            <strong>A* path planner</strong> — searches the gridded map from start to goal,
+            generating a sequence of waypoints. Heuristic, expanded-cell tracking, the usual.
+          </li>
+          <li>
+            <strong>Particle filter localization</strong> — propagates a cloud of particles
+            forward using wheel odometry, then reweights them against incoming LiDAR scans
+            using a likelihood-field model. Best estimate is the weighted mean.
+          </li>
+          <li>
+            <strong>PID trajectory controller</strong> — given the current pose estimate
+            and the next waypoint, computes linear and angular velocity commands. Tuned
+            to follow paths smoothly without overshoot.
+          </li>
+        </ul>
+
+        <h2>What was interesting</h2>
+        <p>
+          The particle filter is where it all comes together — and where it breaks if any
+          one piece is wrong. Bad sensor model, particle deprivation, or a too-tight
+          resampling step will give you a confident-but-wrong pose, and the planner will
+          happily steer you into a wall. Most of the debugging was visualizing the
+          particle cloud in Rviz and watching where it disagrees with reality.
+        </p>
+
+        <dl class="specs">
+          <div><dt>Course</dt><dd>MTE 544 — Autonomous Mobile Robots</dd></div>
+          <div><dt>Stack</dt><dd>ROS2 (Python)</dd></div>
+          <div><dt>Planning</dt><dd>A* on occupancy grid</dd></div>
+          <div><dt>Localization</dt><dd>Particle filter · LiDAR + odometry</dd></div>
+          <div><dt>Control</dt><dd>PID trajectory controller</dd></div>
+          <div><dt>Visualization</dt><dd>Rviz</dd></div>
+        </dl>
+      </section>
+
+      <div class="page-end">
+        <a href="../index.html#projects">← back to projects</a>
+        <a href="../index.html#contact">get in touch →</a>
+      </div>
+    </article>
+  </main>
+  <footer class="footer">
+    <p>© <span id="year"></span> Prateek Singh.</p>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
