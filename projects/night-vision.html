@@ -92,6 +92,120 @@
           by staring at a waveform.
         </p>
 
+        <h2>Debugging</h2>
+        <p>
+          A few techniques and war stories from the software side, since FPGA debug
+          doesn't give you a stack trace — when something's wrong, the display goes
+          black or glitchy and you have to work it out from the outside in.
+        </p>
+
+        <h3>LED breadcrumbs in <code>top.v</code></h3>
+        <p>
+          When the board flashed cleanly but produced nothing on the displays, the
+          first move was to assert an LED early in <code>top.v</code> and walk the
+          assertion down the pipeline. If the LED lit before the I²C bring-up block
+          but stayed dark after, I knew the FSM was stalling in there. One bit of
+          state I could see from across the room replaced a stack trace I couldn't
+          have.
+        </p>
+
+        <h3>OV5640 bring-up — hours in the register map</h3>
+        <p>
+          The camera needed a long sequence of register writes over I²C/SCCB before
+          it would output anything sane. I started with a generic
+          <code>i2c_master.v</code> module, but it was clumsier to debug than it was
+          worth, so I rewrote it as <code>i2c_bitbang_cam.v</code> — a dedicated
+          bit-banged sequencer specific to the OV5640 startup script. The
+          non-obvious registers that took the longest to dial in:
+        </p>
+        <ul>
+          <li><code>0x3037</code> — PLL pre-divider</li>
+          <li><code>0x3036</code> — PLL multiplier (these two together set the pixel clock)</li>
+          <li><code>0x380c</code> / <code>0x380d</code> — HTS high/low (horizontal line length)</li>
+          <li><code>0x380e</code> / <code>0x380f</code> — VTS high/low (vertical frame length)</li>
+          <li><code>0x3820</code> / <code>0x3821</code> — video flip and mirror, needed to get the image right-side up for the displays</li>
+        </ul>
+
+        <h3>One-LED proof for the DVP capture path</h3>
+        <p>
+          Once <code>dvp_capture.v</code> was packing the camera's 8-bit Y/U/Y/V
+          stream into 16-bit YUV422 words for the display, I tied its
+          <code>de_o</code> data-valid output to an LED. If the LED blinked, three
+          things were true simultaneously: the I²C bring-up had succeeded, the
+          camera was streaming valid pixel data, and the capture module was packaging
+          it correctly. One signal collapsed three unknowns.
+        </p>
+
+        <h3>The saw-tooth on PCLK</h3>
+        <p>
+          Camera and display kept drifting out of sync. Probing the OV5640's PCLK
+          pin showed it running near 115 MHz with a sharp saw-tooth waveform —
+          peaks at 2.7 V, dropping ~1.4 V on every cycle. Bad enough on paper that
+          rising edges should have been ambiguous, but the FPGA was interpreting
+          it correctly anyway. Root cause: no source-termination on the trace.
+          The run was under 1 cm so length wasn't the issue, but a high-impedance
+          FPGA input was reflecting energy back with no resistor in the way. A
+          33–77 Ω series resistor on PCLK went on the v2 fix list.
+        </p>
+
+        <h3>The GOWIN FIFO IP turned out to be the bug</h3>
+        <p>
+          The displays were strobing because the camera was writing into a GOWIN
+          FIFO IP faster than the display side could read, and the FIFO wasn't
+          handling the overrun the way the docs claimed. To localize the
+          corruption I injected a checkered test pattern further and further up
+          the pipeline. When the pattern made it cleanly through everything
+          <em>except</em> the FIFO, the IP itself became the suspect — and the
+          same behaviour reproduced whether I targeted LUTs or BSRAM. I replaced
+          it with a hand-rolled <code>32line_buff.v</code> in BSRAM (32 lines × 480
+          pixels × 16-bit), which gave the display enough slack to read ahead of
+          the camera writes without ever colliding.
+        </p>
+
+        <h3>PD-controlled frame sync</h3>
+        <p>
+          Even with the buffer, the displays strobed lightly when the camera and
+          display frame rates drifted apart. I timed each frame's vsync edges and
+          ran a PD loop that adjusted the display's blanking-bit count on the fly
+          to lock display frame to camera frame. Strobing went away.
+        </p>
+
+        <h3>HyperRAM — the one I couldn't crack</h3>
+        <p>
+          HyperRAM was supposed to be the full frame buffer — enough bandwidth at
+          100 MHz to hold ~26 frames at 60 fps. Two Gowin synthesis errors held up
+          most of the work:
+        </p>
+        <ul>
+          <li>
+            <strong><code>CK0021</code></strong> — an <code>IDDR</code> primitive
+            reading the hidden <code>_d</code> net of an <code>inout</code> port
+            while an <code>ODDR</code> drove the same pad. Both are needed for
+            the bidirectional DQ bus (DDR out for CA bytes and write data, DDR in
+            for read data strobed by <code>RWDS</code>), so I couldn't just drop
+            one.
+          </li>
+          <li>
+            <strong><code>CK0011</code></strong> — an <code>ODDR</code> primitive
+            must drive a pad directly, with no intervening logic. My first cut had
+            registered logic between the <code>ODDR</code> and the pin.
+          </li>
+        </ul>
+        <p>
+          I tried wrapping the DDR primitives in a sub-module to isolate them from
+          the register logic, but Gowin flattens hierarchy during place-and-route,
+          so the wrapper bought nothing. Rewriting the module from scratch with
+          only default register primitives finally got it to compile. Then probing
+          the HyperRAM clock at 100 MHz showed clean edges, low jitter, the right
+          duty cycle — and the data coming back through the pipeline was still
+          corrupted. The board had no test points on the bus, so a logic analyzer
+          couldn't see anything between FPGA and RAM. The failure could have been
+          configuration registers off by a value, latency setting off by a cycle,
+          wrong drive strength, a bad solder joint, or a protocol bug I never
+          found. Time ran out before any of those could be ruled in or out, and
+          the 32-line buffer carried the final build instead.
+        </p>
+
         <dl class="specs">
           <div><dt>Platform</dt><dd>Sipeed Tang Primer 25K (Gowin GW5A FPGA)</dd></div>
           <div><dt>Toolchain</dt><dd>Gowin EDA</dd></div>

@@ -556,6 +556,15 @@ main {
 
 .project-body h2:first-child { margin-top: 0; }
 
+.project-body h3 {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--fg);
+  margin: 24px 0 10px;
+  letter-spacing: -0.005em;
+  max-width: 720px;
+}
+
 .project-body p {
   font-size: 17px;
   color: var(--fg-soft);
