@@ -99,6 +99,10 @@
         </p>
 
         <h3><code>top.v</code> testing &amp; debugging</h3>
+        <figure class="device-shot">
+          <img src="../assets/nv-diag-topv.png" alt="Block diagram of top.v showing inputs (clk, rst_n, cam_data, cam_href, cam_pclk, cam_vsync, etc.) on the left and outputs (led_1, cam_rst_n, led_2, cam_xclk, lcd_hs, y_data, etc.) on the right." />
+          <figcaption>Figure 11 — <code>top.v</code> block diagram (FPGA top-level: clock, reset, camera DVP inputs, I²C lines, display outputs).</figcaption>
+        </figure>
         <p>
           Most of the debugging within <code>top.v</code> was done to determine
           which submodule in the software pipeline is failing when an error
@@ -116,6 +120,10 @@
         </p>
 
         <h3><code>i2c_bitbang_cam.v</code> testing &amp; debugging</h3>
+        <figure class="device-shot">
+          <img src="../assets/nv-diag-i2c-cam.png" alt="Block diagram of i2c_bitbang_cam.v with clk, rst_n, and cam_clk inputs and cam_done, busy, done, error, sda_1, scl_1, cam_pwdn, cam_rst_n, cam_xclk outputs." />
+          <figcaption>Figure 12 — <code>i2c_bitbang_cam.v</code> block diagram. Bit-banged I²C/SCCB sequencer that drives the OV5640 startup script and exposes <code>busy</code>, <code>done</code>, and <code>error</code> for the top-level FSM.</figcaption>
+        </figure>
         <p>
           The <code>i2c_bitbang_cam.v</code> module was used to initialize the
           OV5640 camera using the I²C/SCCB protocol to ensure the camera data can
@@ -152,6 +160,10 @@
         </table>
 
         <h3><code>dvp_capture.v</code> testing &amp; debugging</h3>
+        <figure class="device-shot">
+          <img src="../assets/nv-diag-dvp.png" alt="Block diagram of dvp_capture.v with pclk, rst_n, input_data, de_i inputs and hblank, de_o, y_data, cbcr_data outputs." />
+          <figcaption>Figure 13 — <code>dvp_capture.v</code> block diagram. Packs the OV5640's 8-bit Y/U/Y/V stream into 16-bit YUV422 words clocked by <code>pclk</code>, with <code>de_o</code> asserted when the output word is valid.</figcaption>
+        </figure>
         <p>
           Minimal testing was done for this module over the course of the
           project. Initially to ensure this module was intended, the
@@ -164,6 +176,10 @@
         </p>
 
         <h3><code>display_top.v</code> testing &amp; debugging</h3>
+        <figure class="device-shot">
+          <img src="../assets/nv-diag-display.png" alt="Block diagram of display_top.v with btn, rst_n, y_temp, cbcr_temp, lcd_dclk inputs/inout and lcd_hs, lcd_vs, h_count, v_count, data_enable, y_data, cbcr_data, VCC, i2c_trigger outputs." />
+          <figcaption>Figure 14 — <code>display_top.v</code> block diagram. Drives the FLCOS displays from the 16-bit YUV422 stream, generating <code>lcd_hs</code>, <code>lcd_vs</code>, <code>data_enable</code>, and the <code>h_count</code> / <code>v_count</code> pixel coordinates.</figcaption>
+        </figure>
         <p>
           The display has previously been tested and was operational. The only
           additional testing conducted was creating a checkered pattern to test
@@ -181,14 +197,24 @@
         </p>
 
         <h3>Hyperram testing &amp; debugging</h3>
+        <figure class="device-shot">
+          <img src="../assets/nv-diag-hyperram.png" alt="Block diagram of hyperram.v with wr_clk, cam_16bit_wr_en, cam_pixel_in, rd_clk, clk, clk_shift, fsm_clk, rst_n, ram_dq, ram_rwds, cam_vsync, display_vsync, data_enable inputs and rd_pixel_out, ram_cs_n, ram_reset_n, ram_ck, ram_ck_shift outputs." />
+          <figcaption>Figure 15 — <code>hyperram.v</code> block diagram. Bidirectional DDR interface (<code>ram_dq</code>, <code>ram_rwds</code>) to the S70KL1282GA HyperRAM, driven by separate write/read clocks and an FSM clock.</figcaption>
+        </figure>
         <p>
           During the testing stages it was determined that the Tang Primer 25K
           holds around 23,000 D flip-flops in terms of memory. Thus, image
           processing on multiple lines of a singular frame isn't even possible.
           Software architecture when dealing with this part of the pipeline had
           to be altered multiple times to conform to the limitations of the
-          Tang Primer 25K FPGA.
+          Tang Primer 25K FPGA. The initial plan paired a <code>write_ram.v</code>
+          and <code>read_ram.v</code> wrapper around <code>hyperram.v</code>,
+          each planned to hold three arrays for buffering and synchronization:
         </p>
+        <figure class="device-shot">
+          <img src="../assets/nv-diag-hyperram-initial.png" alt="Initial hyperram software architecture: write_ram.v feeds into hyperram.v which feeds into read_ram.v." />
+          <figcaption>Figure 16 — initial hyperram software implementation. <code>write_ram.v</code> on the camera side and <code>read_ram.v</code> on the display side were intended to wrap a central <code>hyperram.v</code> module — abandoned once the array-passing limitation and Gowin IO primitive constraints forced a rewrite.</figcaption>
+        </figure>
         <p>
           The hyperram was made and simulated on iverilog gtkwave. After the
           waveforms of the simulated RAM looked correct, the program was ported
@@ -244,6 +270,10 @@
         </p>
 
         <h3><code>32line_buff</code> testing &amp; debugging</h3>
+        <figure class="device-shot">
+          <img src="../assets/nv-diag-line-buff.png" alt="Block diagram of 30line_buff.v with wr_clk, rst_n, cam_16bit_wr_en, cam_pixel_in, rd_clk, rd_en, cam_vsync, rd_x, rd_y inputs and rd_pixel_out, rd_valid outputs." />
+          <figcaption>Figure 17 — line buffer block diagram (labelled <code>30line_buff.v</code> in this earlier revision; the final build used a 32-line variant of the same architecture). Independent write- and read-clocks bridge the camera and display domains, with <code>rd_x</code> / <code>rd_y</code> selecting the pixel read out.</figcaption>
+        </figure>
         <p>
           There were many iterations of the <code>32line_buff</code>. Initially,
           a GOWIN FIFO with a 200-pixel buffer was used but was not enough for
