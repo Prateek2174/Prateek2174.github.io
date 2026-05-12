@@ -705,6 +705,52 @@ main {
   max-width: 720px;
 }
 
+/* register / data tables inside project bodies */
+.project-body table.reg-table {
+  margin: 8px 0 28px;
+  border-collapse: collapse;
+  font-size: 14px;
+  max-width: 720px;
+  width: 100%;
+  color: var(--fg);
+}
+
+.project-body table.reg-table caption {
+  caption-side: top;
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.project-body table.reg-table th,
+.project-body table.reg-table td {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.project-body table.reg-table th {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+  color: var(--muted);
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--line);
+}
+
+.project-body table.reg-table td code {
+  background: transparent;
+  padding: 0;
+  font-size: 13px;
+}
+
 /* ---------- Notion-style code block ---------- */
 .code-block {
   margin: 28px 0;
