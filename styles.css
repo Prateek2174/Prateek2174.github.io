@@ -1141,3 +1141,25 @@ figcaption {
 @media (max-width: 880px) {
   .stack-grid { grid-template-columns: 1fr; gap: 40px; }
 }
+
+/* ---------- spec-card stack blocks (boards/mcus + languages) ---------- */
+.spec-card .stack-block {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+}
+
+.spec-card .stack-block-label {
+  display: block;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 10.5px;
+  margin-bottom: 6px;
+}
+
+.spec-card .stack-block .stack {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
