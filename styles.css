@@ -928,6 +928,18 @@ figure.hero-shot img {
   display: block;
 }
 
+figure.video-short {
+  margin: 32px 0;
+  display: flex;
+  justify-content: center;
+}
+figure.video-short iframe {
+  width: 315px;
+  height: 560px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+}
+
 figure.device-shot,
 figure.booth-shot {
   margin: 32px 0;
