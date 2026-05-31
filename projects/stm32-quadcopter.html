@@ -169,6 +169,16 @@
           <div><dt>Comms</dt><dd>I²C (sensors) · USART (telemetry)</dd></div>
           <div><dt>IDE</dt><dd>STM32CubeIDE</dd></div>
         </dl>
+
+        <h2>What's next</h2>
+        <p>The firmware core is running — sensor fusion, PID loop, and motor outputs are all working. What's still left before it flies:</p>
+        <ul>
+          <li><strong>RC receiver</strong> — wire up a PWM/PPM receiver so it can be flown manually before any autonomous mode is attempted</li>
+          <li><strong>Flight testing &amp; PID tuning</strong> — get it on a real frame and iterate on gains; textbook values and the actual airframe will disagree</li>
+          <li><strong>Battery monitoring</strong> — ADC on the battery rail with a low-voltage cutoff to protect the LiPo</li>
+          <li><strong>Madgwick filter</strong> — replace the current complementary fusion with a proper attitude filter to cut drift on longer flights</li>
+          <li><strong>Flight logging</strong> — stream IMU, PID state, and motor outputs over UART at high rate for post-flight analysis and tuning</li>
+        </ul>
       </section>
 
       <div class="page-end">

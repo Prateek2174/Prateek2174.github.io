@@ -114,6 +114,14 @@
           <div><dt>Speed</dt><dd>Full-Speed (12 Mb/s)</dd></div>
           <div><dt>Build</dt><dd>STM32CubeIDE</dd></div>
         </dl>
+
+        <h2>What's next</h2>
+        <ul>
+          <li><strong>CDC virtual COM port</strong> — implement the USB Communications Device Class on top of the existing device stack so the board appears as a serial port to the host; useful for debug output without a separate UART adapter</li>
+          <li><strong>DFU mode</strong> — add a Device Firmware Upgrade interface so firmware can be flashed over USB rather than a debug probe</li>
+          <li><strong>USB mass storage</strong> — expose an SD card or internal flash as a USB drive; requires a bulk-only transport layer on top of the endpoint logic</li>
+          <li><strong>USB HID</strong> — implement a HID descriptor to enumerate as a keyboard or gamepad; low endpoint count and straightforward report format make it a good next class to tackle</li>
+        </ul>
       </section>
 
       <div class="page-end">

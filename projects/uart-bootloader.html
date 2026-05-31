@@ -108,6 +108,15 @@
           <div><dt>Flash</dt><dd>Sector-erase + word-program via FLASH peripheral</dd></div>
           <div><dt>Layout</dt><dd>Bootloader at 0x0800_0000; application offset configurable</dd></div>
         </dl>
+
+        <h2>What's next</h2>
+        <ul>
+          <li><strong>CRC integrity check</strong> — verify the received firmware with a CRC32 before committing it to flash; a corrupted transfer currently goes undetected until the application crashes at runtime</li>
+          <li><strong>Host-side flashing script</strong> — write a Python companion script to drive the protocol from a PC: chunk the binary, send it, and report progress cleanly</li>
+          <li><strong>Baud rate negotiation</strong> — auto-baud detect or a handshake sequence so the host doesn't have to be pre-configured to 115200</li>
+          <li><strong>Software-triggered entry</strong> — let the running application jump into the bootloader via a magic value in backup RAM, eliminating the need for a physical reset-and-hold sequence</li>
+          <li><strong>Encrypted firmware</strong> — add AES decryption in the bootloader so the binary on the wire is ciphertext; useful for protecting IP on production hardware</li>
+        </ul>
       </section>
 
       <div class="page-end">

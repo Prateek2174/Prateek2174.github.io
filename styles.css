@@ -366,6 +366,40 @@ main {
   position: relative;
 }
 
+/* currently building section */
+.wip-section {
+  margin-bottom: 36px;
+}
+
+.wip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-bottom: 12px;
+  letter-spacing: 0.02em;
+}
+
+.wip-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--accent);
+  font-size: 11px;
+}
+
+.tile--wip {
+  border-color: var(--accent);
+  max-width: 400px;
+}
+
+.tile--wip:hover {
+  border-color: var(--accent-2);
+  box-shadow: 0 4px 24px rgba(234, 88, 12, 0.12);
+}
+
 /* tile image / placeholder */
 .tile-img {
   height: 168px;

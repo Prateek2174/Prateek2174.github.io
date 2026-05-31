@@ -110,6 +110,14 @@
           <div><dt>Protocols</dt><dd>I²S, PCM (configurable)</dd></div>
           <div><dt>Build</dt><dd>STM32CubeIDE, HAL-light</dd></div>
         </dl>
+
+        <h2>What's next</h2>
+        <ul>
+          <li><strong>Codec bring-up</strong> — wire up a CS43L22 or PCM5102 and bring it up over I²C to go from raw I²S signals to audible output</li>
+          <li><strong>DMA double-buffering</strong> — use ping-pong DMA buffers so the CPU can fill one buffer while the SAI drains the other; eliminates glitches at buffer boundaries</li>
+          <li><strong>Audio effects</strong> — once DMA streaming is solid, implement a basic FIR filter or biquad EQ running on the M4's DSP instructions (SIMD, MAC in the FPU)</li>
+          <li><strong>Full-duplex</strong> — configure SAI block A as transmitter and block B as receiver simultaneously for real-time audio passthrough and processing</li>
+        </ul>
       </section>
 
       <div class="page-end">

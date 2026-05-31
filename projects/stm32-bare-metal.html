@@ -150,6 +150,15 @@
           <div><dt>HAL</dt><dd>None — direct register access</dd></div>
           <div><dt>Linker</dt><dd>Custom (FLASH + RAM variants)</dd></div>
         </dl>
+
+        <h2>What's next</h2>
+        <ul>
+          <li><strong>SPI &amp; I²C masters</strong> — the two most common sensor buses; writing them from the reference manual is the natural next step after USART</li>
+          <li><strong>DMA</strong> — offload peripheral transfers so the CPU isn't blocked during USART or ADC reads; requires understanding the DMA stream/channel arbitration</li>
+          <li><strong>Advanced timers</strong> — encoder interface mode for motor position, complementary PWM outputs with dead-time insertion for half-bridge drives</li>
+          <li><strong>FreeRTOS integration</strong> — layer a minimal RTOS on top of the bare-metal drivers to understand how task scheduling interacts with interrupt-driven peripherals</li>
+          <li><strong>Port to STM32H7</strong> — apply the same register-level approach to a Cortex-M7 part; the core is faster, the peripheral register map shifts, and cache coherency becomes a real concern with DMA</li>
+        </ul>
       </section>
 
       <div class="page-end">

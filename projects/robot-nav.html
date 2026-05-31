@@ -92,6 +92,14 @@
           <div><dt>Control</dt><dd>PID trajectory controller</dd></div>
           <div><dt>Visualization</dt><dd>Rviz</dd></div>
         </dl>
+
+        <h2>What's next</h2>
+        <ul>
+          <li><strong>Dynamic obstacle avoidance</strong> — A* on a static map breaks down with moving obstacles; layering a local planner (DWA or VFH) on top would handle real environments</li>
+          <li><strong>SLAM</strong> — replace the pre-built occupancy grid with simultaneous localization and mapping so the robot can operate in unknown spaces</li>
+          <li><strong>EKF / UKF localization</strong> — the particle filter works but is computationally heavy; an extended or unscented Kalman filter would give tighter estimates at lower cost</li>
+          <li><strong>3D perception</strong> — swap the 2D LiDAR for a depth camera and extend the planner to reason about obstacles at different heights</li>
+        </ul>
       </section>
 
       <div class="page-end">

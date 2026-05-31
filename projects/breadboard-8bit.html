@@ -253,6 +253,15 @@
           <div><dt>Memory</dt><dd>RAM module + microcoded control ROM</dd></div>
           <div><dt>Programmability</dt><dd>Custom ISA + hand-assembler</dd></div>
         </dl>
+
+        <h2>What's next</h2>
+        <ul>
+          <li><strong>Stack &amp; subroutines</strong> — add a stack pointer register and CALL/RET instructions so programs can use functions; requires one more register and two new microcode sequences</li>
+          <li><strong>Expand RAM</strong> — the current design has 16 bytes of addressable RAM; routing more address lines to the RAM chip would get to 256 bytes and make real programs possible</li>
+          <li><strong>Assembler</strong> — replace hand-assembly with a simple Python assembler that takes a text file of mnemonics and outputs the binary to load</li>
+          <li><strong>Serial output</strong> — add a 74HC595 shift register or a UART chip so the computer can write text to a terminal rather than just the 7-segment display</li>
+          <li><strong>PCB</strong> — translate the breadboard layout to a proper PCB; cleaner signals, no loose wires, and a far more reliable machine</li>
+        </ul>
       </section>
 
       <div class="page-end">

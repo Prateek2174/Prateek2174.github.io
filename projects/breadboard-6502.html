@@ -158,6 +158,15 @@
           <div><dt>Programming</dt><dd>6502 assembly → hand-assembled → EEPROM</dd></div>
           <div><dt>Video</dt><dd>TTL-logic VGA generator (HSYNC, VSYNC, pixel clock)</dd></div>
         </dl>
+
+        <h2>What's next</h2>
+        <ul>
+          <li><strong>Monitor program</strong> — write a ROM-resident monitor that lets you inspect and modify memory, enter programs via keyboard, and run them — the classic 6502 development environment</li>
+          <li><strong>PS/2 keyboard</strong> — decode PS/2 scan codes in software and map them to ASCII so the system has real input</li>
+          <li><strong>VGA character mode</strong> — tile the display into a character grid backed by a small RAM region; text output becomes a memory write rather than pixel manipulation</li>
+          <li><strong>SPI / SD card</strong> — bit-bang SPI to an SD card for persistent storage; programs would survive power cycles</li>
+          <li><strong>Expand to W65C02S</strong> — the CMOS W65C02S is in production and adds useful instructions (STZ, PHX, PHY); a drop-in upgrade for the breadboard</li>
+        </ul>
       </section>
 
       <div class="page-end">

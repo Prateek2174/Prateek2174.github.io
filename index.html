@@ -68,29 +68,16 @@
       <header class="section-head">
         <span class="section-num">// 01</span>
         <h2>Projects</h2>
-        <span class="right">selected work · 9 entries</span>
+        <span class="right">selected work · 8 completed</span>
       </header>
 
-      <div class="tile-grid">
-        <a class="tile" href="projects/night-vision.html">
-          <div class="tile-img">
-            <img src="assets/nv-topdown.jpg" alt="IR night-vision headset internals" loading="lazy" />
-          </div>
-          <div class="tile-head">
-            <span class="lights"><span></span><span></span><span></span></span>
-            <span class="path">~/capstone · MTE 481</span>
-          </div>
-          <div class="tile-body">
-            <h3>Vision AI — IR night vision headset</h3>
-            <p>FPGA video pipeline for a head-mounted IR night-vision system. Verilog on Tang Primer 25K — OV5640 capture, I²C bring-up, line buffering, FLCOS display drive.</p>
-            <div class="tile-tags">
-              <span>FPGA</span><span>Verilog</span><span>Gowin EDA</span><span>capstone</span>
-            </div>
-          </div>
-          <span class="tile-arrow">→</span>
-        </a>
-
-        <a class="tile" href="projects/stm32-quadcopter.html">
+      <!-- currently building -->
+      <div class="wip-section">
+        <div class="wip-header">
+          <span>// currently building</span>
+          <span class="wip-status"><span class="pulse"></span>in progress</span>
+        </div>
+        <a class="tile tile--wip" href="projects/stm32-quadcopter.html">
           <div class="tile-img">
             <div class="tile-img-ph">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
@@ -111,6 +98,26 @@
             <p>Bare-metal flight stack on STM32F446RE — MPU6050 + LIS3MDL sensor fusion, PID loop, PWM motor control, UART telemetry.</p>
             <div class="tile-tags">
               <span>C</span><span>STM32F446RE</span><span>PID</span><span>I²C</span>
+            </div>
+          </div>
+          <span class="tile-arrow">→</span>
+        </a>
+      </div>
+
+      <div class="tile-grid">
+        <a class="tile" href="projects/night-vision.html">
+          <div class="tile-img">
+            <img src="assets/nv-topdown.jpg" alt="IR night-vision headset internals" loading="lazy" />
+          </div>
+          <div class="tile-head">
+            <span class="lights"><span></span><span></span><span></span></span>
+            <span class="path">~/capstone · MTE 481</span>
+          </div>
+          <div class="tile-body">
+            <h3>Vision AI — IR night vision headset</h3>
+            <p>FPGA video pipeline for a head-mounted IR night-vision system. Verilog on Tang Primer 25K — OV5640 capture, I²C bring-up, line buffering, FLCOS display drive.</p>
+            <div class="tile-tags">
+              <span>FPGA</span><span>Verilog</span><span>Gowin EDA</span><span>capstone</span>
             </div>
           </div>
           <span class="tile-arrow">→</span>

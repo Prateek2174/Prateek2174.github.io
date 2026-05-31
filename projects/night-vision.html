@@ -355,6 +355,16 @@
           <img src="../assets/capstone-team.jpg" alt="The capstone team at the project showcase." />
           <figcaption>The capstone team at the showcase.</figcaption>
         </figure>
+
+        <h2>What's next</h2>
+        <p>Three features didn't make the capstone deadline and are worth returning to:</p>
+        <ul>
+          <li><strong>HyperRAM frame buffer</strong> — the module talks to the RAM but returns corrupted data somewhere in the DDR path; root-causing the IO primitive constraint violations in Gowin EDA is the first step to a true full-frame buffer</li>
+          <li><strong>Thermal overlay</strong> — the thermal sensor wouldn't initialize reliably over I²C during the project; with more time on the register sequencing this should be solvable</li>
+          <li><strong>Analog FPV input</strong> — the TVP5151 decoder had colorspace and timing issues that ran out of runway; revisiting with a logic analyzer trace of the output would likely close it</li>
+          <li><strong>PCB revision</strong> — add 33–77 Ω series resistors on the high-speed clock traces to fix the saw-tooth waveform caused by missing impedance matching</li>
+          <li><strong>Integrated PCB</strong> — consolidate the FPGA, camera module, and display driver onto a single custom board to reduce the umbilical wiring and bring the form factor down</li>
+        </ul>
       </section>
 
       <div class="page-end">
