@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jenga Mosaic — Kinova Gen3 Pick &amp; Place — Prateek Singh</title>
+  <meta name="description" content="Robotic arm pick-and-place system on a Kinova Gen3 — brick picking from a reserve pile and Cartesian path execution to build Jenga mosaics." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css?v=20260513b" />
+  <script data-theme-init>(function(){try{var s=localStorage.getItem("theme");var d=s==="dark"||(s!=="light"&&window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches);if(d)document.documentElement.setAttribute("data-theme","dark");}catch(e){}})();</script>
+</head>
+<body>
+  <header class="nav">
+    <a class="nav-brand" href="../index.html"><span class="dot"></span>prateek singh</a>
+    <div class="nav-right">
+      <nav class="nav-links">
+        <a href="../index.html#projects">projects</a>
+        <a href="../index.html#about">about</a>
+        <a href="../index.html#contact">contact</a>
+      </nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      </button>
+    </div>
+  </header>
+  <main>
+    <article class="project-page">
+      <p class="eyebrow">case 10 · ME 547 · 2026</p>
+      <h1>Jenga Mosaic <span class="title-sub">— Kinova Gen3 pick &amp; place</span></h1>
+      <p class="tagline">
+        A four-person team taught a Kinova Gen3 robotic arm to expand a Jenga-block
+        mosaic autonomously — vision, pattern prediction, and arm control in a single
+        Python pipeline. I owned the two physical layers: picking reserve bricks from
+        a pile and commanding the arm to move them.
+      </p>
+
+      <div class="project-meta-row">
+        <span class="tag code">Python</span>
+        <span class="tag">Kinova Gen3</span>
+        <span class="tag">Kortex API</span>
+        <span class="tag">NumPy</span>
+        <span class="tag">OpenCV</span>
+        <span class="tag">pick &amp; place</span>
+      </div>
+
+      <a class="repo-link" href="https://github.com/Starlequint/ROBOTIC-JENGA-MOSIAC" target="_blank" rel="noopener">
+        <span class="gh">↗</span> github.com/Starlequint/ROBOTIC-JENGA-MOSIAC
+      </a>
+
+      <dl class="specs">
+        <div><dt>Robot</dt><dd>Kinova Gen3 7-DOF arm (Robohub, UWaterloo)</dd></div>
+        <div><dt>API</dt><dd>Kinova Kortex Python SDK</dd></div>
+        <div><dt>Course</dt><dd>ME 547 — Robotic Manipulation · Group 2</dd></div>
+        <div><dt>Team</dt><dd>Adrien Bugnion · Lorik Ordolli · Victor Lancieux · Prateek Singh</dd></div>
+        <div><dt>Language</dt><dd>Python + NumPy</dd></div>
+        <div><dt>Vision (team)</dt><dd>OpenCV — Canny/Sobel edge detection, contour filtering</dd></div>
+      </dl>
+
+      <section class="project-body">
+
+        <h2>What the system does</h2>
+        <p>
+          The robot is shown a partially built 2D mosaic of Jenga planks. A camera
+          captures the workspace, a vision module detects each brick's position and
+          orientation, a pattern module identifies the current tessellation and predicts
+          where new bricks should go, and then the arm picks bricks from a reserve pile
+          and places them — one at a time — until the pattern is fully expanded.
+        </p>
+        <p>
+          My two modules sat at the bottom of this pipeline: once the system knew
+          <em>where</em> to put the next brick, my code had to find a suitable brick
+          to pick up and then physically execute the move.
+        </p>
+
+        <h2>My role</h2>
+        <p>
+          The team split the work into six tasks. I took tasks 4 and 5.
+        </p>
+        <p>
+          <strong>Task 4 — new brick picking.</strong> Given a camera image of the
+          reserve pile (a loosely scattered heap of Jenga planks), identify each brick's
+          position and orientation so the arm can approach it correctly.
+          The output is a position + orientation tuple the arm can use directly.
+          All bricks in the reserve pile are laid flat with the same face up, which
+          simplifies the grasp orientation to a single in-plane rotation angle.
+        </p>
+        <p>
+          <strong>Task 5 — robot arm movement.</strong> Given a source (position,
+          orientation) and a destination (position, orientation), command the Kinova
+          Gen3 to move the brick from one to the other without hitting the existing
+          structure. This covers both normal placement moves and correction moves:
+          if an earlier brick landed in the wrong position or at the wrong angle,
+          the arm picks it up from its actual pose and re-places it at the target pose.
+        </p>
+        <p>
+          Because I was working off-site from the Robohub where the physical robot
+          lives, I passed my code directly to the group member running on the arm —
+          which is why my GitHub account doesn't appear in the commit history.
+        </p>
+
+        <h2>Arm movement in detail</h2>
+        <p>
+          The Kinova Gen3 is controlled through the Kortex Python SDK. Each move is
+          a Cartesian action: a target (x, y, z) and a target orientation (roll,
+          pitch, yaw) sent to the base controller. The arm has hard joint limits and
+          a limited Cartesian workspace, so a direct single-step move from A to B
+          often fails or finds no solution.
+        </p>
+        <p>
+          The fix is to decompose each move into <em>l</em> equal sub-steps along
+          the straight line in Cartesian space, sending incremental deltas
+          <code>(x/l, y/l, z/l)</code> and <code>(ox/l, oy/l, oz/l)</code> per step:
+        </p>
+
+        <div class="code-block">
+          <div class="code-head">
+            <span class="code-file">move_angular_and_cartesian.py</span>
+            <span class="code-lang">Python</span>
+          </div>
+          <pre><code><span class="tok-kw">for</span> i <span class="tok-kw">in</span> range(l):
+    success &= example_cartesian_action_movement(
+        base, base_cyclic,
+        x/l, y/l, z/l,
+        ox/l, oy/l, oz/l
+    )</code></pre>
+        </div>
+
+        <p>
+          For each sub-step the joint angles are also solved, and the step count
+          <em>l</em> is chosen to minimise the maximum single-joint displacement
+          per step — keeping the motion smooth and within the arm's velocity limits.
+          A camera-to-robot-base coordinate transform is applied to convert pixel
+          coordinates from the vision module into the arm's reference frame before
+          any move is commanded.
+        </p>
+
+        <h2>What was tricky</h2>
+        <p>
+          Working entirely off the physical robot was the main constraint. I had to
+          write and reason about movement code without being able to run it — all
+          testing happened when my teammate loaded it onto the arm in the Robohub.
+          That meant being precise about units, coordinate frames, and edge cases
+          up front rather than iterating at the machine.
+        </p>
+        <p>
+          The step-count decomposition also needed tuning: too few steps and the arm
+          hits a joint limit mid-move; too many and the total execution time grows
+          to the point where the demo becomes impractical. The right value was found
+          empirically by my teammate running the arm.
+        </p>
+        <p>
+          The correction move case — where the arm must recover a misplaced brick —
+          requires knowing the brick's <em>actual</em> pose, not the intended one.
+          That feeds back from the vision and feedback modules (Victor's work), so
+          the interface between those modules and mine needed to be agreed on early
+          and held to exactly.
+        </p>
+
+        <h2>What's next</h2>
+        <ul>
+          <li><strong>Collision-aware planning</strong> — the current Cartesian decomposition assumes a clear path; a proper motion planner (RRT or the Kortex built-in planner) would handle obstacles in the workspace without manual step tuning</li>
+          <li><strong>Grasp verification</strong> — add a force/torque threshold check after the gripper closes to confirm the brick was actually caught before attempting the place move</li>
+          <li><strong>Orientation interpolation</strong> — the current approach interpolates orientation linearly in Euler angles, which can produce unexpected wrist trajectories; switching to quaternion SLERP would give cleaner rotational paths</li>
+          <li><strong>3D brick pile</strong> — the reserve bricks are currently laid flat in a single layer; handling a stacked or random pile would require depth estimation and a more general grasp planner</li>
+        </ul>
+
+      </section>
+
+      <div class="page-end">
+        <a href="../index.html#projects">← back to projects</a>
+        <a href="https://github.com/Starlequint/ROBOTIC-JENGA-MOSIAC" target="_blank" rel="noopener">view on GitHub →</a>
+      </div>
+    </article>
+  </main>
+  <footer class="footer">
+    <p>© <span id="year"></span> Prateek Singh.</p>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script src="../theme.js" defer></script>
+  <script src="../toc.js" defer></script>
+</body>
+</html>
