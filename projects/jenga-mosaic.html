@@ -50,6 +50,11 @@
         <span class="gh">↗</span> github.com/Starlequint/ROBOTIC-JENGA-MOSIAC
       </a>
 
+      <figure class="hero-shot">
+        <img src="../assets/jenga-arm.png" alt="Kinova Gen3 robotic arm with Jenga blocks arranged on a dark table in the UWaterloo Robohub." />
+        <figcaption>The Kinova Gen3 arm in the UWaterloo Robohub, with the reserve brick pile and target area set up on the table.</figcaption>
+      </figure>
+
       <dl class="specs">
         <div><dt>Robot</dt><dd>Kinova Gen3 7-DOF arm (Robohub, UWaterloo)</dd></div>
         <div><dt>API</dt><dd>Kinova Kortex Python SDK</dd></div>
@@ -69,6 +74,12 @@
           where new bricks should go, and then the arm picks bricks from a reserve pile
           and places them — one at a time — until the pattern is fully expanded.
         </p>
+
+        <figure class="device-shot">
+          <img src="../assets/jenga-detection.png" alt="Title slide showing an infrared camera view of detected Jenga bricks with numbered coordinate frames overlaid on each brick." />
+          <figcaption>IR camera view from the title slide — each detected brick gets a numbered coordinate frame encoding its position and orientation. The pattern shown is a ring of eleven bricks.</figcaption>
+        </figure>
+
         <p>
           My two modules sat at the bottom of this pipeline: once the system knew
           <em>where</em> to put the next brick, my code had to find a suitable brick
@@ -77,24 +88,30 @@
 
         <h2>My role</h2>
         <p>
-          The team split the work into six tasks. I took tasks 4 and 5.
+          The team split the work into six tasks across four people. I took tasks 4 and 5.
         </p>
         <p>
           <strong>Task 4 — new brick picking.</strong> Given a camera image of the
           reserve pile (a loosely scattered heap of Jenga planks), identify each brick's
           position and orientation so the arm can approach it correctly.
-          The output is a position + orientation tuple the arm can use directly.
-          All bricks in the reserve pile are laid flat with the same face up, which
-          simplifies the grasp orientation to a single in-plane rotation angle.
+          The output is a (position, orientation) tuple the arm can use directly.
+          All reserve bricks are laid flat with the same face up, which simplifies
+          the grasp to a single in-plane rotation angle.
         </p>
         <p>
-          <strong>Task 5 — robot arm movement.</strong> Given a source (position,
-          orientation) and a destination (position, orientation), command the Kinova
-          Gen3 to move the brick from one to the other without hitting the existing
-          structure. This covers both normal placement moves and correction moves:
-          if an earlier brick landed in the wrong position or at the wrong angle,
-          the arm picks it up from its actual pose and re-places it at the target pose.
+          <strong>Task 5 — robot arm movement.</strong> Given a source
+          (position, orientation) and a destination (position, orientation), command
+          the Kinova Gen3 to move the brick from one to the other without hitting the
+          existing structure. This covers both normal placement moves and correction
+          moves: if a brick landed in the wrong position or at the wrong angle, the
+          arm picks it up from its actual pose and re-places it at the target pose.
         </p>
+
+        <figure class="device-shot">
+          <img src="../assets/jenga-mapping.png" alt="Camera view of Jenga bricks on a dark surface with green and red arrows overlaid showing the detected coordinate frame for each brick." />
+          <figcaption>Brick detection output with coordinate axes overlaid — green arrows show the long axis, red arrows the short axis. This is the data my picking module consumed to choose the next brick and approach angle.</figcaption>
+        </figure>
+
         <p>
           Because I was working off-site from the Robohub where the physical robot
           lives, I passed my code directly to the group member running on the arm —
@@ -107,7 +124,7 @@
           a Cartesian action: a target (x, y, z) and a target orientation (roll,
           pitch, yaw) sent to the base controller. The arm has hard joint limits and
           a limited Cartesian workspace, so a direct single-step move from A to B
-          often fails or finds no solution.
+          often fails or finds no IK solution.
         </p>
         <p>
           The fix is to decompose each move into <em>l</em> equal sub-steps along
@@ -129,13 +146,41 @@
         </div>
 
         <p>
-          For each sub-step the joint angles are also solved, and the step count
-          <em>l</em> is chosen to minimise the maximum single-joint displacement
-          per step — keeping the motion smooth and within the arm's velocity limits.
-          A camera-to-robot-base coordinate transform is applied to convert pixel
-          coordinates from the vision module into the arm's reference frame before
-          any move is commanded.
+          The step count <em>l</em> is chosen to minimise the maximum single-joint
+          displacement per step — keeping motion smooth and within the arm's velocity
+          limits. A camera-to-robot-base coordinate transform is applied to convert
+          pixel coordinates from the vision module into the arm's reference frame
+          before any move is commanded.
         </p>
+
+        <figure class="device-shot">
+          <img src="../assets/jenga-gripper.png" alt="Slide showing robot arm movement approach: xyz from Kinova codes, decomposition in steps, optimal joint angles, and camera transformation. Inset photo of the gripper picking up a Jenga brick." />
+          <figcaption>Arm movement approach from the presentation — the gripper mid-pick, showing the Cartesian decomposition strategy and the coordinate transform pipeline.</figcaption>
+        </figure>
+
+        <h2>Demo</h2>
+        <p>Three clips of the system running in the Robohub:</p>
+
+        <figure class="device-shot">
+          <video controls preload="metadata" style="width:100%;max-width:720px;border-radius:8px;border:1px solid var(--line);">
+            <source src="../assets/jenga-demo1.mp4" type="video/mp4" />
+          </video>
+          <figcaption>Demo 1 — arm picking a brick from the reserve pile and placing it in the mosaic.</figcaption>
+        </figure>
+
+        <figure class="device-shot">
+          <video controls preload="metadata" style="width:100%;max-width:720px;border-radius:8px;border:1px solid var(--line);">
+            <source src="../assets/jenga-demo2.mp4" type="video/mp4" />
+          </video>
+          <figcaption>Demo 2 — second pick-and-place sequence.</figcaption>
+        </figure>
+
+        <figure class="device-shot">
+          <video controls preload="metadata" style="width:100%;max-width:720px;border-radius:8px;border:1px solid var(--line);">
+            <source src="../assets/jenga-demo3.mp4" type="video/mp4" />
+          </video>
+          <figcaption>Demo 3 — final demo run, 30 March 2026.</figcaption>
+        </figure>
 
         <h2>What was tricky</h2>
         <p>
@@ -147,9 +192,9 @@
         </p>
         <p>
           The step-count decomposition also needed tuning: too few steps and the arm
-          hits a joint limit mid-move; too many and the total execution time grows
-          to the point where the demo becomes impractical. The right value was found
-          empirically by my teammate running the arm.
+          hits a joint limit mid-move; too many and execution time grows to the point
+          where the demo becomes impractical. The right value was found empirically
+          by my teammate running the arm.
         </p>
         <p>
           The correction move case — where the arm must recover a misplaced brick —
@@ -161,9 +206,9 @@
 
         <h2>What's next</h2>
         <ul>
-          <li><strong>Collision-aware planning</strong> — the current Cartesian decomposition assumes a clear path; a proper motion planner (RRT or the Kortex built-in planner) would handle obstacles in the workspace without manual step tuning</li>
+          <li><strong>Collision-aware planning</strong> — the current Cartesian decomposition assumes a clear path; a proper motion planner (RRT or the Kortex built-in planner) would handle obstacles without manual step tuning</li>
           <li><strong>Grasp verification</strong> — add a force/torque threshold check after the gripper closes to confirm the brick was actually caught before attempting the place move</li>
-          <li><strong>Orientation interpolation</strong> — the current approach interpolates orientation linearly in Euler angles, which can produce unexpected wrist trajectories; switching to quaternion SLERP would give cleaner rotational paths</li>
+          <li><strong>Orientation interpolation</strong> — linear Euler interpolation can produce unexpected wrist trajectories; quaternion SLERP would give cleaner rotational paths</li>
           <li><strong>3D brick pile</strong> — the reserve bricks are currently laid flat in a single layer; handling a stacked or random pile would require depth estimation and a more general grasp planner</li>
         </ul>
 
