@@ -111,6 +111,158 @@
           were supposed to be temporary every time.
         </p>
 
+        <h2>Module breakdown</h2>
+        <p>
+          The binary spawns around 20 async tasks from <code>main()</code>, grouped by
+          subsystem. Each task owns its hardware exclusively — no shared peripheral
+          locks.
+        </p>
+
+        <p><strong>app / ev_state_machine</strong> — master vehicle FSM (Off → Standby
+        → Precharge → Ready → Drive / Charge → Fault). Runs at 20 ms. Reads the
+        consolidated fault action, pedal state, gear, ignition, parking brake, and
+        precharge state — all through the stamped freshness layer. Any fatal fault
+        collapses it to Fault in one tick; the only exit is ignition-off with faults
+        cleared.</p>
+
+        <p><strong>bms / bms_manager</strong> — BMS coordinator. Consumes cell
+        snapshots from the TPL task, fused pack current, and bus voltage. Computes
+        pack-level min/max V and T, runs coulomb-counting SoC estimation, derives
+        discharge and charge current limits from V/T margins, and publishes a
+        <code>PackStatus</code> every 20 ms.</p>
+
+        <p><strong>bms / tpl</strong> — SPI driver for the MC33771C / MC33664 TPL
+        daisy chain. Reads per-cell voltages (168 cells) and temperatures (48 NTCs)
+        and publishes a <code>CellSnapshot</code> at 10 ms.</p>
+
+        <p><strong>bms / pack_current</strong> — owns ADC2. Reads the shunt and Hall
+        current sensors every 10 ms, scales each with its own calibration constants,
+        checks plausibility between them, and publishes a fused current. Disagreement
+        raises a <code>BmsPackOverCurrent</code> fault edge.</p>
+
+        <p><strong>bms / soc</strong> — coulomb-counter SoC estimator. Accumulates
+        charge in mA·ms to avoid per-tick truncation at low currents; converts to
+        percent against the confirmed pack capacity.</p>
+
+        <p><strong>bms / bms_faults</strong> — BMS fault detector. Called by
+        bms_manager every tick. Edge-reports cell OV/UV and over/under-temperature to
+        the fault bus; holds no local state.</p>
+
+        <p><strong>bms / balancing</strong> — passive balancing scheduler. Reads cell
+        voltages and commands the TPL to bleed high cells.</p>
+
+        <p><strong>hv / contactor</strong> — per-contactor FSMs for main-positive,
+        main-negative, and precharge. Each tracks its own Open / Closing / Closed /
+        Opening / Welded state against the feedback pin. Close-timeout de-energises
+        the coil immediately. Unexpected open (feedback drops while commanded closed)
+        raises a dedicated per-contactor fault code. Weld detection also fires a
+        per-contactor code so diagnostics know which unit failed.</p>
+
+        <p><strong>hv / precharge</strong> — precharge sequence FSM. Closes the
+        negative contactor, then waits for the bus capacitance to reach ≥95% of pack
+        voltage before closing main-positive and opening the precharge contactor. Three
+        independent phase-specific timeouts replace the original single flat timeout.</p>
+
+        <p><strong>hv / hvil</strong> — HV interlock loop monitor on an EXTI input.
+        Debounces the signal, reports <code>HvilOpen</code> on falling edge and clears
+        it on rising edge.</p>
+
+        <p><strong>hv / isolation</strong> — IMD consumer (CAN-delivered). Two-tier
+        hysteresis: critical low (SafeShutdown) and warning (Derate), each with its
+        own recovery threshold so near-threshold resistance doesn't chatter the fault
+        bus.</p>
+
+        <p><strong>driver_inputs / pedal</strong> — owns ADC1. Samples two
+        accelerator channels and a brake channel at 1 ms. Cross-checks the two
+        accelerator readings for plausibility; latches <code>PedalImplausible</code>
+        if they disagree for more than the debounce window. Recovery requires both
+        channels to return to released for a hold period. Applies per-channel
+        calibration spans and a deadband before publishing.</p>
+
+        <p><strong>driver_inputs / gear</strong> — shift-by-wire with four momentary
+        buttons (P/R/N/D). Debounces each button, enforces interlocks (reverse blocked
+        above 3 kph, park blocked above 3 kph, must hold brake to shift from stop),
+        and publishes a <code>GearStatus</code>.</p>
+
+        <p><strong>driver_inputs / ignition</strong> and <strong>parking_brake</strong>
+        — debounced GPIO readers; each publishes a stamped value with a fail-safe (Off
+        / Engaged) used by the FSM on stale reads.</p>
+
+        <p><strong>fault / fault_manager</strong> — sole owner of all fault state.
+        Receives <code>FaultObservation</code> edges from every detector, runs
+        per-code debounce timers, manages latching, computes the highest-priority
+        active action, persists to NVM, and publishes a single
+        <code>ACTIVE_ACTION</code> stamped signal. Nothing else in the system makes
+        safety decisions.</p>
+
+        <p><strong>fault / fault_codes</strong> — canonical fault taxonomy: 35 codes
+        across BMS, HV, driver inputs, CAN, inverter, OBC, thermal, and system
+        categories. Each code has static metadata (severity, action, debounce, latch)
+        defined in a <code>const fn</code> so the compiler can verify completeness.</p>
+
+        <p><strong>safety / safety_manager</strong> — monitors the impact switch and
+        brake fluid level; reports <code>ImpactDetected</code> and
+        <code>BrakeFluidLow</code>.</p>
+
+        <p><strong>safety / watchdog</strong> — kicks the IWDG on a fixed period.
+        A hung task that starves this one resets the MCU; the reset is logged to NVM
+        as a <code>WatchdogReset</code> fault on the next boot.</p>
+
+        <p><strong>can / can_manager</strong> — FDCAN1 driver at 250 kbps. Receives
+        and decodes frames from all supplier ECUs (inverter, OBC, ABS, IMD, TMS)
+        and publishes them as typed signals. Also transmits VCU heartbeat and torque
+        request frames.</p>
+
+        <p><strong>mcu_iface / inverter_iface</strong> — consumes vehicle state,
+        pack limits, and the torque arbitration output; encodes and sends the torque
+        request frame to the inverter. Monitors the inverter status frame and raises
+        <code>InverterFault</code> / <code>MotorOverTemperature</code> as needed.</p>
+
+        <p><strong>charger / obc_iface</strong> — OBC charge FSM (Idle → Plugged →
+        Negotiating → Charging → Stopping). Decodes the OBC status frame; a stale
+        frame is treated as unplugged. Monitors OBC temperature and raises
+        <code>ObcFault</code> on over-temp.</p>
+
+        <p><strong>abs_iface / wheel_speed</strong> — decodes ABS wheel-speed frames,
+        checks front/rear plausibility, and raises <code>WheelSpeedImplausible</code>
+        on excessive delta. Times out if the ABS module goes silent.</p>
+
+        <p><strong>thermal / tms_iface</strong> — decodes the AC 2-in-1 TMS feedback
+        frame (500 ms, 29-bit extended CAN ID, J1939 PDU2). Maps TMS fault levels to
+        VCU fault codes: Level 1 mandates SafeShutdown per the protocol spec, Level 2
+        latches Limp, Level 3 is informational.</p>
+
+        <p><strong>thermal / thermal_manager</strong> — republishes TMS data in the
+        internal <code>ThermalStatus</code> shape consumed by the BMS and fault
+        manager.</p>
+
+        <p><strong>lv / lv_monitor</strong> — reads LV battery voltage from ADC3
+        (sub-sampled at 100 ms), raises <code>LvLow</code> with hysteresis.</p>
+
+        <p><strong>platform / stamped</strong> — the cross-cutting freshness
+        primitive. <code>Stamped&lt;T&gt;</code> wraps a value with a timestamp and
+        sequence number. <code>read_or_failsafe</code> returns the type's declared
+        fail-safe if the signal is absent or past its deadline.</p>
+
+        <p><strong>platform / adc</strong> — single owner task for ADC3; round-robins
+        pack voltage and LV voltage at 10 ms, sub-sampling LV at 100 ms.</p>
+
+        <p><strong>cal / tables</strong> — every behavioral constant in the firmware.
+        Provenance-tagged with the engineer who must confirm it. Release builds
+        rejected by <code>cal_gate.sh</code> if any placeholder remains or if a bare
+        numeric literal appears in a comparison outside this file.</p>
+
+        <p><strong>nvm / store</strong> — fault log and persistent config over
+        internal flash. Written by the fault manager on latch edges; read on boot to
+        restore prior fault state.</p>
+
+        <p><strong>diagnostics / uds</strong> — UDS layer stub; will expose fault
+        codes over CAN to a standard OBD tool.</p>
+
+        <p><strong>torque_arbitration / arbiter</strong> — combines driver demand,
+        pack discharge limit, and derate level into a final torque request. Regen
+        blending and slip limiting pending.</p>
+
         <h2>HV sequencing</h2>
         <p>
           The precharge and contactor logic was the most safety-sensitive part. Each
