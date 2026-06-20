@@ -61,10 +61,12 @@
         <h2>Context</h2>
         <p>
           I wrote all of this during a co-op term — the full VCU and BMS firmware
-          from scratch, solo. The platform choice — async Rust on embassy-stm32 rather
-          than C with an RTOS — was my call, made early and defended on the grounds that
-          the type system would enforce inter-task ownership rules that are normally left
-          to code review.
+          from scratch, solo, over about a month. The startup pivoted before the vehicle
+          reached full testing, so the firmware never ran on the production hardware, but
+          the architecture is complete and the codebase compiles clean. The platform
+          choice — async Rust on embassy-stm32 rather than C with an RTOS — was my
+          call, made early and defended on the grounds that the type system would enforce
+          inter-task ownership rules that are normally left to code review.
         </p>
 
         <h2>What I built</h2>
