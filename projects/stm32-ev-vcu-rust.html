@@ -282,6 +282,29 @@
           design; splitting it made each phase observable and independently calibrated.
         </p>
 
+        <h2>Design process</h2>
+        <p>A few pages from my notebook, captured before writing the code.</p>
+
+        <figure class="device-shot">
+          <img src="../assets/vcu-notes-p11.png" alt="Handwritten sketch of async task spawn order — safety and fault spine first, vehicle FSM last" />
+          <figcaption>Task spawn priority order — I sketched this before writing <code>main.rs</code>. Safety-critical tasks (fault manager, watchdog, HVIL) spawn first; the vehicle FSM spawns last, after every upstream producer is already running.</figcaption>
+        </figure>
+
+        <figure class="device-shot">
+          <img src="../assets/vcu-notes-p12.png" alt="Handwritten clock tree notes with gap numbering and decision to decouple HSE from bring-up" />
+          <figcaption>Clock tree reasoning — the production VCU's HSE crystal hadn't been confirmed by electrical, so I decoupled it: unblock full-speed bring-up on HSI now, track the HSE accuracy question as gap #10 to resolve before a production flash.</figcaption>
+        </figure>
+
+        <figure class="device-shot">
+          <img src="../assets/vcu-notes-p14.png" alt="Handwritten fault guard logic sketch with four OR'd conditions and STATE → FAULT annotation" />
+          <figcaption>Early fault arbitration sketch — working out the conditions that should force a hard fault before writing the <code>fatal()</code> guard and the consolidated action pipeline.</figcaption>
+        </figure>
+
+        <figure class="device-shot">
+          <img src="../assets/vcu-notes-p19.png" alt="Handwritten HV contactor state diagram with safety-review annotation" />
+          <figcaption>HV contactor state diagram — with a note to get the datasheet confirmed and a reminder that any change in this slice goes through safety review.</figcaption>
+        </figure>
+
         <h2>What was hard</h2>
         <p>
           Choosing embassy-stm32 over a C RTOS was the most consequential early
