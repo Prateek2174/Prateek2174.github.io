@@ -77,31 +77,58 @@
           <span>// currently building</span>
           <span class="wip-status"><span class="pulse"></span>in progress</span>
         </div>
-        <a class="tile tile--wip" href="projects/stm32-quadcopter.html">
-          <div class="tile-img">
-            <div class="tile-img-ph">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-                <circle cx="5" cy="5" r="2.2"/><circle cx="19" cy="5" r="2.2"/>
-                <circle cx="5" cy="19" r="2.2"/><circle cx="19" cy="19" r="2.2"/>
-                <line x1="5" y1="5" x2="12" y2="12"/><line x1="19" y1="5" x2="12" y2="12"/>
-                <line x1="5" y1="19" x2="12" y2="12"/><line x1="19" y1="19" x2="12" y2="12"/>
-                <circle cx="12" cy="12" r="1.8"/>
-              </svg>
+        <div class="tile-grid">
+          <a class="tile tile--wip" href="projects/stm32-quadcopter.html">
+            <div class="tile-img">
+              <div class="tile-img-ph">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                  <circle cx="5" cy="5" r="2.2"/><circle cx="19" cy="5" r="2.2"/>
+                  <circle cx="5" cy="19" r="2.2"/><circle cx="19" cy="19" r="2.2"/>
+                  <line x1="5" y1="5" x2="12" y2="12"/><line x1="19" y1="5" x2="12" y2="12"/>
+                  <line x1="5" y1="19" x2="12" y2="12"/><line x1="19" y1="19" x2="12" y2="12"/>
+                  <circle cx="12" cy="12" r="1.8"/>
+                </svg>
+              </div>
             </div>
-          </div>
-          <div class="tile-head">
-            <span class="lights"><span></span><span></span><span></span></span>
-            <span class="path">github.com/Prateek2174/stm32-quadcopter</span>
-          </div>
-          <div class="tile-body">
-            <h3>STM32 quadcopter</h3>
-            <p>Bare-metal flight stack on STM32F446RE — MPU6050 + LIS3MDL sensor fusion, PID loop, PWM motor control, UART telemetry.</p>
-            <div class="tile-tags">
-              <span>C</span><span>STM32F446RE</span><span>PID</span><span>I²C</span>
+            <div class="tile-head">
+              <span class="lights"><span></span><span></span><span></span></span>
+              <span class="path">github.com/Prateek2174/stm32-quadcopter</span>
             </div>
-          </div>
-          <span class="tile-arrow">→</span>
-        </a>
+            <div class="tile-body">
+              <h3>STM32 quadcopter</h3>
+              <p>Bare-metal flight stack on STM32F446RE — MPU6050 + LIS3MDL sensor fusion, PID loop, PWM motor control, UART telemetry.</p>
+              <div class="tile-tags">
+                <span>C</span><span>STM32F446RE</span><span>PID</span><span>I²C</span>
+              </div>
+            </div>
+            <span class="tile-arrow">→</span>
+          </a>
+
+          <a class="tile tile--wip" href="projects/stm32-ev-vcu-rust.html">
+            <div class="tile-img">
+              <div class="tile-img-ph">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="7" width="20" height="14" rx="2"/>
+                  <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+                  <line x1="12" y1="12" x2="12" y2="16"/>
+                  <line x1="10" y1="14" x2="14" y2="14"/>
+                </svg>
+              </div>
+            </div>
+            <div class="tile-head">
+              <span class="lights"><span></span><span></span><span></span></span>
+              <span class="path">STM32H755ZI · embassy-stm32 · Rust</span>
+            </div>
+            <div class="tile-body">
+              <h3>Timberwolf VCU</h3>
+              <p>Vehicle Control Unit + BMS firmware for an Ontario EV pickup truck — async Rust on embassy-stm32, safety-critical fault architecture, HV contactor sequencing, CAN bus for all supplier ECUs.</p>
+              <div class="tile-tags">
+                <span>Rust</span><span>STM32H755</span><span>embassy</span><span>CAN</span>
+              </div>
+            </div>
+            <span class="tile-arrow">→</span>
+          </a>
+        </div>
       </div>
 
       <div class="tile-grid">

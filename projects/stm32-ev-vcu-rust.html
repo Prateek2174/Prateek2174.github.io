@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Timberwolf VCU — STM32H755 EV Firmware in Rust — Prateek Singh</title>
+  <meta name="description" content="Vehicle Control Unit and BMS firmware for the Timberwolf EV pickup truck — async Rust on embassy-stm32, STM32H755ZI dual-core, safety-critical fault architecture over a CAN bus." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css?v=20260513b" />
+  <script data-theme-init>(function(){try{var s=localStorage.getItem("theme");var d=s==="dark"||(s!=="light"&&window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches);if(d)document.documentElement.setAttribute("data-theme","dark");}catch(e){}})();</script>
+</head>
+<body>
+  <header class="nav">
+    <a class="nav-brand" href="../index.html"><span class="dot"></span>prateek singh</a>
+    <div class="nav-right">
+      <nav class="nav-links">
+        <a href="../index.html#projects">projects</a>
+        <a href="../index.html#about">about</a>
+        <a href="../index.html#contact">contact</a>
+      </nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      </button>
+    </div>
+  </header>
+  <main>
+    <article class="project-page">
+      <p class="eyebrow">case 11 · Co-op · 2026</p>
+      <h1>Timberwolf VCU <span class="title-sub">— STM32H755 EV firmware in Rust</span></h1>
+      <p class="tagline">
+        Vehicle Control Unit and Battery Management System firmware for an Ontario
+        EV pickup truck, built during a co-op term. Async Rust on
+        <code>embassy-stm32</code>, targeting a dual-core STM32H755ZI — supplier ECUs
+        (inverter, OBC, AC thermal unit, ABS, IMD) over a single 250&nbsp;kbps CAN bus.
+      </p>
+
+      <div class="project-meta-row">
+        <span class="tag code">Rust</span>
+        <span class="tag">embassy-stm32</span>
+        <span class="tag">STM32H755ZI</span>
+        <span class="tag">CAN bus</span>
+        <span class="tag">BMS</span>
+        <span class="tag">safety-critical</span>
+      </div>
+
+      <dl class="specs">
+        <div><dt>MCU</dt><dd>STM32H755ZI — Cortex-M7 + M4 (running on M7)</dd></div>
+        <div><dt>Board</dt><dd>NUCLEO-H755ZI-Q (bench); production VCU PCB TBD</dd></div>
+        <div><dt>Framework</dt><dd>embassy-stm32 · async · <code>no_std</code></dd></div>
+        <div><dt>CAN</dt><dd>FDCAN1 · 250 kbps · FD-capable PHYs</dd></div>
+        <div><dt>Supplier ECUs</dt><dd>Inverter · OBC · AC 2-in-1 TMS · ABS · IMD</dd></div>
+        <div><dt>Pack</dt><dd>168s LFP cells · 48 temperature sensors · MC33771C TPL chain</dd></div>
+        <div><dt>Vehicle</dt><dd>Timberwolf EV pickup truck · Ontario, Canada</dd></div>
+      </dl>
+
+      <section class="project-body">
+
+        <h2>Context</h2>
+        <p>
+          I wrote all of this during a co-op term — the full VCU and BMS firmware
+          from scratch, solo. The platform choice — async Rust on embassy-stm32 rather
+          than C with an RTOS — was my call, made early and defended on the grounds that
+          the type system would enforce inter-task ownership rules that are normally left
+          to code review.
+        </p>
+
+        <h2>What I built</h2>
+        <p>
+          The firmware manages the full ignition-to-drive sequence: detect ignition,
+          sequence the HV contactors through precharge, confirm the bus is up, then hand
+          control to the vehicle FSM which arbitrates driver inputs against pack state.
+          I wrote every layer — BMS, fault manager, HV sequencing, pedal safety, CAN
+          ifaces, thermal management, the vehicle FSM — and set four architectural rules
+          up front that every module had to follow.
+        </p>
+        <p>
+          <strong>Signal freshness.</strong> Every value shared between async tasks
+          carries a timestamp. A consumer that reads a value past its deadline gets the
+          type's declared fail-safe instead — zero torque, parking brake engaged, pack
+          fault active. This meant a crashed producer or a stale CAN frame degraded
+          automatically to the safe state without any explicit timeout logic in each
+          consumer.
+        </p>
+        <p>
+          <strong>Centralised fault management.</strong> Every detector in the system
+          — HV interlock monitor, pedal plausibility check, cell voltage, isolation
+          resistance, wheel-speed sanity — fires an edge observation into a single
+          fault manager. The fault manager is the only place that owns debounce timers,
+          latch state, and priority. It publishes one action signal (None / Derate /
+          Limp / SafeShutdown); the vehicle FSM reads nothing else. This made the
+          overall safety behaviour testable as a unit rather than emergent from 15
+          modules each doing their own thing.
+        </p>
+        <p>
+          <strong>ADC ownership.</strong> Three ADC instances, each owned by exactly
+          one task — the pedal task (1 ms, safety-critical), the pack current task
+          (shunt + Hall fusion), and a single owner for the slower pack-voltage and
+          LV measurements. No shared ADC locks; each task samples at the rate it needs
+          without coordinating with anything else.
+        </p>
+        <p>
+          <strong>Calibration gate.</strong> Every behavioral constant — cell
+          over/under-voltage thresholds, contactor timeouts, pedal deadbands, fault
+          debounce periods — lives in one file, tagged with which engineer must confirm
+          it before the value is valid. A build script rejects any release build that
+          still has an unconfirmed placeholder or a bare numeric literal in a comparison
+          outside that file. Annoying to set up, but it caught hardcoded values that
+          were supposed to be temporary every time.
+        </p>
+
+        <h2>HV sequencing</h2>
+        <p>
+          The precharge and contactor logic was the most safety-sensitive part. Each
+          contactor (main-positive, main-negative, precharge) has its own FSM that
+          tracks commanded state against measured feedback. A close that times out drops
+          the drive coil immediately rather than leaving it energised. A contactor that
+          opens unexpectedly while commanded closed raises a dedicated fault code — not
+          a generic timeout — so diagnostics can identify which unit failed. Weld
+          detection works the same way: one fault code per contactor.
+        </p>
+        <p>
+          Precharge uses three independent timeouts — one for the negative contactor to
+          close, one for the bus capacitance to charge to ≥95% of pack voltage, one for
+          the main-positive contactor to close. A single flat timeout was the original
+          design; splitting it made each phase observable and independently calibrated.
+        </p>
+
+        <h2>What was hard</h2>
+        <p>
+          Choosing embassy-stm32 over a C RTOS was the most consequential early
+          decision. The async executor and ownership rules meant the compiler caught
+          a class of concurrency bug — two tasks trying to own the same ADC instance,
+          mutable state crossing task boundaries without synchronisation — that in C
+          would only show up under load or on specific hardware. The downside was that
+          embassy's API was still moving, and some patterns I designed against had to
+          be revised as the crate evolved.
+        </p>
+        <p>
+          The fault architecture took the most iteration. The first version let
+          subsystems act on their own faults directly. That broke down immediately when
+          two faults conflicted: both the HVIL monitor and the precharge timeout wanted
+          to open contactors simultaneously, and they didn't agree on the order. Moving
+          all of that into a single arbitrating task made the behavior deterministic,
+          but it required a clear contract for how detectors communicate observations
+          versus how the manager communicates actions.
+        </p>
+
+        <h2>What's next</h2>
+        <ul>
+          <li><strong>MC33771C cell monitor driver</strong> — implement the real SPI protocol with the correct CRC polynomial, address auto-discovery, and per-cell plausibility checks; currently runs on a fixed dummy snapshot</li>
+          <li><strong>CAN frame typing</strong> — generate typed encode/decode for all supplier ECUs from a contract spec; current frame handling is hand-stubbed</li>
+          <li><strong>Production PCB bring-up</strong> — first flash on real hardware once the PCB layout is finalised and the clock tree is confirmed by electrical</li>
+          <li><strong>Torque arbitration</strong> — derate curves from pack limits, regen blending with the friction brake, slip detection from ABS wheel-speed deltas</li>
+          <li><strong>UDS diagnostics</strong> — readable fault codes over CAN using a standard OBD tool</li>
+        </ul>
+
+      </section>
+
+      <div class="page-end">
+        <a href="../index.html#projects">← back to projects</a>
+      </div>
+    </article>
+  </main>
+  <footer class="footer">
+    <p>© <span id="year"></span> Prateek Singh.</p>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script src="../theme.js" defer></script>
+  <script src="../toc.js" defer></script>
+</body>
+</html>
