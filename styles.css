@@ -202,9 +202,23 @@ main {
   padding: 96px 0 88px;
   position: relative;
   display: grid;
-  grid-template-columns: 1.5fr 1fr;
+  grid-template-columns: 1.5fr auto 1fr;
   gap: 64px;
-  align-items: start;
+  align-items: center;
+}
+
+.hero-photo {
+  display: flex;
+  justify-content: center;
+}
+
+.hero-photo img {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center top;
+  border: 3px solid var(--accent);
 }
 
 .hero-left {
@@ -1153,6 +1167,7 @@ figcaption {
     gap: 32px;
     padding: 56px 0 64px;
   }
+  .hero-photo img { width: 140px; height: 140px; }
   .spec-card { max-width: 360px; }
   .section-head { grid-template-columns: 1fr; gap: 12px; }
   .section-head .right { display: none; }
