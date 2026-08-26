@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FPGA CNN Accelerator — Verilog Hand Gesture Classifier — Prateek Singh</title>
+  <meta name="description" content="A from-scratch CNN inference engine in Verilog on a Tang Primer 20K FPGA — no CPU, no vendor IP. Classifies hand gestures (0–5 fingers) from a webcam at 84.3% accuracy on real hardware." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css?v=20260513b" />
+  <script data-theme-init>(function(){try{var s=localStorage.getItem("theme");var d=s==="dark"||(s!=="light"&&window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches);if(d)document.documentElement.setAttribute("data-theme","dark");}catch(e){}})();</script>
+</head>
+<body>
+  <header class="nav">
+    <a class="nav-brand" href="../index.html"><span class="dot"></span>prateek singh</a>
+    <div class="nav-right">
+      <nav class="nav-links">
+        <a href="../index.html#projects">projects</a>
+        <a href="../index.html#about">about</a>
+        <a href="../index.html#contact">contact</a>
+      </nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      </button>
+    </div>
+  </header>
+  <main>
+    <article class="project-page">
+      <p class="eyebrow">case 12 · Personal · 2026</p>
+      <h1>FPGA CNN Accelerator <span class="title-sub">— Verilog hand gesture classifier</span></h1>
+      <p class="tagline">
+        A three-layer convolutional neural network built entirely in Verilog on a Tang Primer 20K —
+        no CPU, no soft-core, no vendor neural-net IP. A PC webcam streams 96×96 grayscale frames
+        over UART; the FPGA classifies the hand gesture (0–5 fingers) on-chip and reports the
+        result back over UART and on the board LEDs. <strong>84.3% accuracy on 300 real hardware
+        test images</strong>, against an 88.1% validation accuracy of the trained model.
+      </p>
+
+      <div class="project-meta-row">
+        <span class="tag code">Verilog</span>
+        <span class="tag">FPGA</span>
+        <span class="tag">Tang Primer 20K</span>
+        <span class="tag">CNN</span>
+        <span class="tag">int8</span>
+        <span class="tag">UART</span>
+        <span class="tag">Gowin EDA</span>
+      </div>
+
+      <a class="repo-link" href="https://github.com/Prateek2174/tang-primer-cnn" target="_blank" rel="noopener">
+        <span class="gh">↗</span> github.com/Prateek2174/tang-primer-cnn
+      </a>
+
+      <dl class="specs">
+        <div><dt>FPGA</dt><dd>Sipeed Tang Primer 20K — Gowin GW2A-18C</dd></div>
+        <div><dt>Input</dt><dd>PC webcam → OpenCV → UART → 96×96 grayscale</dd></div>
+        <div><dt>Network</dt><dd>3× Conv (3×3) + ReLU + 2×2 MaxPool → GAP → FC</dd></div>
+        <div><dt>Weights</dt><dd>int8 quantization-aware training → on-chip pROM</dd></div>
+        <div><dt>Dataset</dt><dd>3,547 self-collected images · 6 classes (0–5 fingers)</dd></div>
+        <div><dt>Accuracy</dt><dd>84.3% measured on FPGA · 88.1% validation (PyTorch)</dd></div>
+        <div><dt>Logic</dt><dd>9% LUT/ALU/ROM16 · 6% registers · 59% BRAM (binding)</dd></div>
+        <div><dt>Toolchain</dt><dd>Gowin EDA V1.9.11 · PyTorch (training)</dd></div>
+      </dl>
+
+      <section class="project-body">
+
+        <h2>What it does</h2>
+        <p>
+          The FPGA runs a complete CNN inference pipeline — from raw pixel input to
+          classified output — with no processor of any kind involved. A Python script on
+          the PC captures a webcam frame, resizes it to 96×96 grayscale, and sends it
+          over UART prefixed with a <code>0xAA 0x55</code> sync marker. The FPGA
+          assembles the frame, runs it through three convolutional layers, a global
+          average pooling stage, and a fully connected classifier, then sends the
+          predicted finger count (0–5) back as a single byte and lights the
+          corresponding LED.
+        </p>
+        <p>
+          All weights — the convolutional filters, per-filter biases, and FC layer
+          weights — are quantized to int8 and stored in on-chip pROM. The entire
+          inference runs in a single clock domain at 27 MHz (the board's raw oscillator,
+          no PLL) with no off-chip memory.
+        </p>
+
+        <h2>Pipeline</h2>
+        <p>
+          Each stage feeds the next through on-chip BSRAM scratch buffers:
+        </p>
+        <ul>
+          <li><strong>UART RX + frame assembly</strong> — <code>uart.v</code> receives bytes at 115200 baud. <code>uart_frame.v</code> watches for the <code>0xAA 0x55</code> sync marker, then writes the next 9,216 bytes into the resize BSRAM, centering each pixel (<code>pixel − 128</code>) for signed CNN arithmetic.</li>
+          <li><strong>CONV1</strong> — 3×3 convolution over 96×96×1 → 48×48×8, folding bias-add, ReLU, and 2×2 max-pool into the same MAC FSM. Output stored in Feature Map A (BSRAM).</li>
+          <li><strong>CONV2</strong> — 3×3 over 48×48×8 → 24×24×16, same structure. Output in Feature Map B.</li>
+          <li><strong>CONV3</strong> — 3×3 over 24×24×16 → 12×12×32. Output in Feature Map C.</li>
+          <li><strong>Global average pooling</strong> — <code>global_avg_pool.v</code> averages each of the 32 channels in Feature Map C to a single value, producing a 32-element vector.</li>
+          <li><strong>Classifier</strong> — <code>classifier.v</code> runs a fully connected layer over the 32 GAP outputs and takes the argmax to produce the finger-count class.</li>
+          <li><strong>Output</strong> — <code>uart_tx.v</code> sends the class byte back to the PC; the top-level also drives one LED per class in one-hot encoding.</li>
+        </ul>
+
+        <h2>MAC array design</h2>
+        <p>
+          Rather than instantiating three separate conv engines, I wrote a single
+          reusable MAC datapath in <code>mac_array.v</code> and time-multiplexed it
+          across all three conv layers via a <code>conv_layer_sel</code> signal.
+          The MAC FSM folds bias-add, ReLU, and 2×2 max-pool into its own state
+          machine — there are no separate pool or ReLU modules in the live pipeline.
+          <code>conv_acc.v</code> implements the inner 9-tap signed multiply-accumulate
+          for one conv window; <code>mac_array.v</code> loops over channels and spatial
+          positions and coordinates writes back to the feature map BSRAMs.
+        </p>
+        <p>
+          BRAM (59% utilised) is the binding resource, not logic — the three feature
+          maps (48×48×8, 24×24×16, 12×12×32) together require 27 of the 46 available
+          BSRAM blocks.
+        </p>
+
+        <h2>Weights and quantization</h2>
+        <p>
+          The model was trained in PyTorch with quantization-aware training targeting
+          int8 weights. After training, weights are extracted, quantized, and written
+          into Gowin pROM initialization files. <code>weight_rom.v</code> exposes
+          them as an addressed read interface to the MAC array. Biases are also int8,
+          stored per filter. The ~4 percentage-point drop from validation accuracy
+          (88.1%) to real hardware accuracy (84.3%) is accounted for by the fixed-point
+          rounding in the RTL, confirmed by running the same int8 inference in PyTorch
+          and getting matching numbers — no hardware bug.
+        </p>
+
+        <h2>Dataset</h2>
+        <p>
+          3,547 images collected by hand — six classes (0 to 5 fingers), shot against
+          varied backgrounds and lighting, multiple subjects. 85/15 train/val split
+          (3,017 / 530 images). The dataset collection was the longest phase of the
+          project; getting enough variation in background and hand orientation to make
+          the model generalize was what made the final 84.3% on real hardware hold up.
+        </p>
+
+        <h2>Demo</h2>
+        <figure class="device-shot">
+          <video controls preload="metadata" style="width:100%;max-width:720px;border-radius:8px;border:1px solid var(--line);">
+            <source src="../assets/cnn-demo1.mp4" type="video/mp4" />
+          </video>
+          <figcaption>Demo 1 — live classification running on the FPGA.</figcaption>
+        </figure>
+
+        <figure class="device-shot">
+          <video controls preload="metadata" style="width:100%;max-width:720px;border-radius:8px;border:1px solid var(--line);">
+            <source src="../assets/cnn-demo2.mp4" type="video/mp4" />
+          </video>
+          <figcaption>Demo 2.</figcaption>
+        </figure>
+
+        <figure class="device-shot">
+          <video controls preload="metadata" style="width:100%;max-width:720px;border-radius:8px;border:1px solid var(--line);">
+            <source src="../assets/cnn-demo3.mp4" type="video/mp4" />
+          </video>
+          <figcaption>Demo 3.</figcaption>
+        </figure>
+
+        <figure class="device-shot">
+          <video controls preload="metadata" style="width:100%;max-width:720px;border-radius:8px;border:1px solid var(--line);">
+            <source src="../assets/cnn-demo4.mp4" type="video/mp4" />
+          </video>
+          <figcaption>Demo 4.</figcaption>
+        </figure>
+
+        <figure class="device-shot">
+          <video controls preload="metadata" style="width:100%;max-width:720px;border-radius:8px;border:1px solid var(--line);">
+            <source src="../assets/cnn-demo5.mp4" type="video/mp4" />
+          </video>
+          <figcaption>Demo 5.</figcaption>
+        </figure>
+
+        <h2>Design notes</h2>
+        <p>
+          Working notes from the design phase — the CNN datapath structure, BSRAM
+          addressing, and MAC FSM carried forward into the final build.
+        </p>
+
+        <figure class="device-shot">
+          <img src="https://raw.githubusercontent.com/Prateek2174/tang-primer-cnn/master/docs/notes/04-relu-maxpool-conv-dims.jpg" alt="Handwritten notes showing ReLU, MaxPool logic and CONV1→CONV2→CONV3 channel and dimension flow." loading="lazy" />
+          <figcaption>ReLU/MaxPool logic and the dimension flow: 96×96×1 → 48×48×8 → 24×24×16 → 12×12×32 — unchanged from the sketch to the final RTL.</figcaption>
+        </figure>
+
+        <figure class="device-shot">
+          <img src="https://raw.githubusercontent.com/Prateek2174/tang-primer-cnn/master/docs/notes/01-feature-map-memory-layout.jpg" alt="Handwritten notes showing feature map BSRAM layout for the three conv layers." loading="lazy" />
+          <figcaption>Feature map BSRAM layout — 48×48×8, 24×24×16, 12×12×32 and the conv core/accumulator split.</figcaption>
+        </figure>
+
+        <figure class="device-shot">
+          <img src="https://raw.githubusercontent.com/Prateek2174/tang-primer-cnn/master/docs/notes/09-mac-array-fsm-v2.jpg" alt="Refined MAC array FSM sketch with per-channel accumulate loop and pool-index increment logic." loading="lazy" />
+          <figcaption>Refined <code>mac_array.v</code> FSM — adds the per-channel accumulate loop and pool-index increment that made it into the final implementation.</figcaption>
+        </figure>
+
+        <figure class="device-shot">
+          <img src="https://raw.githubusercontent.com/Prateek2174/tang-primer-cnn/master/docs/notes/08-weight-rom-sizing.jpg" alt="Handwritten notes showing weight ROM byte counts and base addresses per conv layer." loading="lazy" />
+          <figcaption>Weight ROM sizing — byte counts and base addresses per conv layer (CONV1/2/3), used to generate the pROM initialization files.</figcaption>
+        </figure>
+
+        <h2>What was hard</h2>
+        <p>
+          The biggest challenge was fitting the feature maps in BRAM. At 59%
+          utilisation BRAM was the binding resource — logic sat at 9%. The three
+          feature map buffers (48×48×8, 24×24×16, 12×12×32) together consume 27 of
+          the 46 available BSRAM blocks. Getting the addressing right — the conv
+          window slides across two spatial dimensions and a channel dimension
+          simultaneously — required careful indexing math to avoid BSRAM port
+          conflicts and to keep the MAC loop on schedule.
+        </p>
+        <p>
+          The earlier design fed a live OV5640 camera directly into the FPGA over
+          a DVP parallel interface, but that path had frame-sync and decimation
+          complexity that was adding noise to the debugging. Switching to UART from a
+          PC webcam gave full control over the input — exact pixel values, known frame
+          boundaries, reproducible test images — which is what made the cycle-accurate
+          simulation vs. hardware accuracy comparison possible.
+        </p>
+        <p>
+          Quantization-aware training was necessary. Naively quantizing a
+          float32-trained model to int8 post-hoc dropped accuracy below 70%.
+          Retraining with QAT and re-quantizing recovered it to 88.1% val / 84.3%
+          hardware.
+        </p>
+
+        <h2>What's next</h2>
+        <ul>
+          <li><strong>Live camera input</strong> — restore the OV5640 DVP path now that the CNN datapath is stable; eliminates the PC middleman and makes the system fully self-contained</li>
+          <li><strong>Pipeline parallelism</strong> — the current design processes one conv layer at a time sequentially; overlapping CONV2 with CONV1's output write-back would cut latency</li>
+          <li><strong>More classes</strong> — extend beyond 0–5 fingers to ASL letters or other gestures; requires a larger dataset and more filters (wider network), which will push BRAM usage past 100% and force a CONV3 feature map compression strategy</li>
+          <li><strong>On-chip display output</strong> — drive an HDMI or SPI display directly from the FPGA showing the classified gesture alongside the confidence scores, without needing the UART return path to a PC</li>
+        </ul>
+
+      </section>
+
+      <div class="page-end">
+        <a href="../index.html#projects">← back to projects</a>
+        <a href="https://github.com/Prateek2174/tang-primer-cnn" target="_blank" rel="noopener">view on GitHub →</a>
+      </div>
+    </article>
+  </main>
+  <footer class="footer">
+    <p>© <span id="year"></span> Prateek Singh.</p>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script src="../theme.js" defer></script>
+  <script src="../toc.js" defer></script>
+</body>
+</html>
