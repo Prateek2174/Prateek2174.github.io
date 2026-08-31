@@ -586,51 +586,79 @@ main {
   font-size: 14px;
 }
 
-/* ---------- updates feed ---------- */
-.updates-section { padding-bottom: 0; }
+/* ---------- hero right column (spec card + updates widget) ---------- */
+.hero-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-self: start;
+}
 
-.update-feed {
+/* ---------- updates widget ---------- */
+.update-widget {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 18px 12px;
+  font-size: 12px;
+}
+
+.update-widget-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 10px;
+}
+
+.update-widget-feed {
   list-style: none;
   margin: 0;
   padding: 0;
-  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
-.update-entry {
+.update-widget-feed li a {
   display: flex;
   align-items: baseline;
-  gap: 14px;
-  padding: 14px 0;
+  gap: 8px;
+  padding: 7px 0;
   border-bottom: 1px solid var(--line);
-  font-size: 14px;
-  line-height: 1.5;
+  color: var(--fg-soft);
+  text-decoration: none;
+  line-height: 1.4;
+  transition: color 0.15s;
 }
 
-.update-date {
+.update-widget-feed li:last-child a { border-bottom: none; }
+
+.update-widget-feed li a:hover { color: var(--fg); }
+
+.update-widget-feed time {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 10px;
   color: var(--muted);
   white-space: nowrap;
-  min-width: 64px;
+  min-width: 52px;
 }
 
 .update-tag {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.04em;
-  padding: 2px 7px;
-  border-radius: 4px;
+  padding: 1px 5px;
+  border-radius: 3px;
   white-space: nowrap;
-  text-transform: uppercase;
+  flex-shrink: 0;
 }
 
 .update-tag--added   { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
 .update-tag--shipped { background: color-mix(in srgb, #22c55e 12%, transparent); color: #22c55e; }
 .update-tag--wip     { background: color-mix(in srgb, #f59e0b 12%, transparent); color: #f59e0b; }
 .update-tag--updated { background: color-mix(in srgb, #a78bfa 12%, transparent); color: #a78bfa; }
-
-.update-text { color: var(--fg); flex: 1; }
 
 /* ---------- footer ---------- */
 .footer {
