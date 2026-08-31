@@ -586,6 +586,52 @@ main {
   font-size: 14px;
 }
 
+/* ---------- updates feed ---------- */
+.updates-section { padding-bottom: 0; }
+
+.update-feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.update-entry {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.update-date {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  min-width: 64px;
+}
+
+.update-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.update-tag--added   { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
+.update-tag--shipped { background: color-mix(in srgb, #22c55e 12%, transparent); color: #22c55e; }
+.update-tag--wip     { background: color-mix(in srgb, #f59e0b 12%, transparent); color: #f59e0b; }
+.update-tag--updated { background: color-mix(in srgb, #a78bfa 12%, transparent); color: #a78bfa; }
+
+.update-text { color: var(--fg); flex: 1; }
+
 /* ---------- footer ---------- */
 .footer {
   padding: 64px 32px;
