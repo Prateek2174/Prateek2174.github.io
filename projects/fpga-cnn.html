@@ -97,6 +97,22 @@
           <li><strong>Output</strong> — <code>uart_tx.v</code> sends the class byte back to the PC; the top-level also drives one LED per class in one-hot encoding.</li>
         </ul>
 
+        <div class="table-wrap">
+          <table class="data-table">
+            <caption>Architecture / conv hyperparameters</caption>
+            <thead>
+              <tr><th>Layer</th><th>Kernel</th><th>Stride</th><th>Padding</th><th>Channels</th><th>Bias</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>conv1</code></td><td>3×3</td><td>1</td><td>1</td><td>1→8</td><td>yes</td></tr>
+              <tr><td><code>conv2</code></td><td>3×3</td><td>1</td><td>1</td><td>8→16</td><td>yes</td></tr>
+              <tr><td><code>conv3</code></td><td>3×3</td><td>1</td><td>1</td><td>16→32</td><td>yes</td></tr>
+              <tr><td>max pool (after each conv+ReLU)</td><td>2×2</td><td>2</td><td>0</td><td>—</td><td>—</td></tr>
+              <tr><td>FC</td><td>—</td><td>—</td><td>—</td><td>32→6</td><td>no</td></tr>
+            </tbody>
+          </table>
+        </div>
+
         <h2>MAC array design</h2>
         <p>
           Rather than instantiating three separate conv engines, I wrote a single
