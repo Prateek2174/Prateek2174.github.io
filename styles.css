@@ -635,9 +635,18 @@ main {
   transition: color 0.15s;
 }
 
+.update-widget-feed li a span:last-child {
+  flex: 1;
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.15s;
+}
+
 .update-widget-feed li:last-child a { border-bottom: none; }
 
-.update-widget-feed li a:hover { color: var(--fg); }
+.update-widget-feed li a:hover { color: var(--accent); }
+.update-widget-feed li a:hover span:last-child { text-decoration-color: var(--accent); }
 
 .update-widget-feed time {
   font-family: var(--mono);
