@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FPGA Human Presence Detector — Verilog CNN on Tang Primer 20K — Prateek Singh</title>
+  <meta name="description" content="A from-scratch CNN running entirely in Verilog on a Tang Primer 20K FPGA that detects whether a person is present in a scene — no CPU, no vendor neural-network IP. 83.3% accuracy on real hardware." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css?v=20260513b" />
+  <script data-theme-init>(function(){try{var s=localStorage.getItem("theme");var d=s==="dark"||(s!=="light"&&window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches);if(d)document.documentElement.setAttribute("data-theme","dark");}catch(e){}})();</script>
+</head>
+<body>
+  <header class="nav">
+    <a class="nav-brand" href="../index.html"><span class="dot"></span>prateek singh</a>
+    <div class="nav-right">
+      <nav class="nav-links">
+        <a href="../index.html#projects">projects</a>
+        <a href="../index.html#about">about</a>
+        <a href="../index.html#contact">contact</a>
+      </nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      </button>
+    </div>
+  </header>
+  <main>
+    <article class="project-page">
+      <p class="eyebrow">case 13 · Personal · 2026</p>
+      <h1>FPGA Human Presence Detector <span class="title-sub">— Verilog CNN, binary classifier</span></h1>
+      <p class="tagline">
+        A four-layer convolutional neural network built entirely in Verilog on a Tang Primer 20K —
+        no CPU, no soft-core, no vendor neural-net IP. A PC webcam streams 96×96 grayscale frames
+        over UART; the FPGA classifies each frame as <em>person</em> or <em>no person</em> on-chip
+        and reports the result back over UART. <strong>83.3% accuracy on a 60-image hardware batch
+        test</strong>, matching the 83.2% measured in quantized simulation before deployment — no
+        meaningful hardware-specific degradation.
+      </p>
+
+      <div class="project-meta-row">
+        <span class="tag code">Verilog</span>
+        <span class="tag">FPGA</span>
+        <span class="tag">Tang Primer 20K</span>
+        <span class="tag">CNN</span>
+        <span class="tag">int8</span>
+        <span class="tag">knowledge distillation</span>
+        <span class="tag">Gowin EDA</span>
+      </div>
+
+      <a class="repo-link" href="https://github.com/Prateek2174/tang_primer_human_cnn" target="_blank" rel="noopener">
+        <span class="gh">↗</span> github.com/Prateek2174/tang_primer_human_cnn
+      </a>
+
+      <dl class="specs">
+        <div><dt>FPGA</dt><dd>Sipeed Tang Primer 20K — Gowin GW2A-18C</dd></div>
+        <div><dt>Input</dt><dd>PC webcam → OpenCV → UART → 96×96 grayscale</dd></div>
+        <div><dt>Network</dt><dd>4× Conv (3×3) + ReLU + MaxPool → GAP → FC (binary)</dd></div>
+        <div><dt>Weights</dt><dd>int8 QAT + BatchNorm fold + knowledge distillation → on-chip pROM</dd></div>
+        <div><dt>Dataset</dt><dd>INRIA Person (full scenes) · 614 images/class after balancing</dd></div>
+        <div><dt>Accuracy</dt><dd>83.3% on real FPGA hardware · 83.2% quantized simulation</dd></div>
+        <div><dt>BRAM</dt><dd>~32 of 46 BSRAM blocks used (binding resource)</dd></div>
+        <div><dt>Toolchain</dt><dd>Gowin EDA · PyTorch (training + distillation)</dd></div>
+      </dl>
+
+      <section class="project-body">
+
+        <h2>Context — sister project to the finger counter</h2>
+        <p>
+          The <a href="fpga-cnn.html">FPGA CNN accelerator</a> proved out the core RTL
+          architecture: a single reusable MAC datapath time-multiplexed across conv
+          layers, int8 weights in pROM, and UART framing for deterministic input. This
+          project applies that same architecture to a harder task — detecting human
+          presence in uncropped real-world scenes — rather than building from scratch.
+          The changes were in the depth of the network (four conv layers vs. three),
+          the training pipeline (BatchNorm folding, knowledge distillation), and the
+          dataset (INRIA Person, not self-collected).
+        </p>
+
+        <h2>What it does</h2>
+        <p>
+          A Python script on the PC captures a webcam frame, resizes it to 96×96
+          grayscale, and sends it over UART prefixed with the same
+          <code>0xAA 0x55</code> sync marker used in the finger counter. The FPGA
+          assembles the frame, runs it through four convolutional layers, a global
+          average pooling stage, and a two-class fully connected classifier, then
+          sends the result — <em>person</em> (1) or <em>no person</em> (0) — back
+          as a single byte.
+        </p>
+        <p>
+          All weights are quantized to int8 and stored in on-chip pROM. Inference
+          runs at 27 MHz (the board's raw oscillator, no PLL) with no off-chip memory.
+        </p>
+
+        <h2>Demo</h2>
+        <figure class="device-shot">
+          <video controls preload="metadata" style="width:100%;max-width:720px;border-radius:8px;border:1px solid var(--line);">
+            <source src="../assets/human-detection-demo.mp4" type="video/mp4" />
+          </video>
+          <figcaption>Live webcam feed with the FPGA's real-time person / no-person prediction overlaid.</figcaption>
+        </figure>
+
+        <h2>Pipeline</h2>
+        <p>Each stage feeds the next through on-chip BSRAM scratch buffers:</p>
+        <ul>
+          <li><strong>UART RX + frame assembly</strong> — receives bytes at 115,200 baud, watches for the <code>0xAA 0x55</code> sync marker, then writes the next 9,216 bytes into the input BSRAM, centering each pixel (<code>pixel − 128</code>) for signed CNN arithmetic.</li>
+          <li><strong>CONV1</strong> — 3×3 convolution over 96×96×1 → 96×96×12, then a <strong>4×4 max-pool</strong> (stride 4) → 24×24×12. The 4×4 pool (instead of the usual 2×2) is a deliberate design choice: it halves the feature map again early, which shrinks BSRAM usage enough to fit the wider network on the 20K.</li>
+          <li><strong>CONV2</strong> — 3×3 over 24×24×12 → 24×24×24, then 2×2 max-pool → 12×12×24.</li>
+          <li><strong>CONV3</strong> — 3×3 over 12×12×24 → 12×12×48, then 2×2 max-pool → 6×6×48.</li>
+          <li><strong>CONV4</strong> — 3×3 over 6×6×48 → 6×6×48, then 2×2 max-pool → 3×3×48.</li>
+          <li><strong>Global average pooling</strong> — averages each of the 48 channels in the 3×3×48 feature map to a single value, producing a 48-element vector.</li>
+          <li><strong>Classifier</strong> — a fully connected layer over the 48 GAP outputs; argmax of the two logits gives the binary prediction.</li>
+          <li><strong>Output</strong> — sends the class byte back to the PC over UART.</li>
+        </ul>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <caption>Architecture / conv hyperparameters</caption>
+            <thead>
+              <tr><th>Layer</th><th>Kernel</th><th>Stride</th><th>Padding</th><th>Channels</th><th>Pool</th><th>Output size</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>conv1</code></td><td>3×3</td><td>1</td><td>1</td><td>1→12</td><td>4×4</td><td>24×24×12</td></tr>
+              <tr><td><code>conv2</code></td><td>3×3</td><td>1</td><td>1</td><td>12→24</td><td>2×2</td><td>12×12×24</td></tr>
+              <tr><td><code>conv3</code></td><td>3×3</td><td>1</td><td>1</td><td>24→48</td><td>2×2</td><td>6×6×48</td></tr>
+              <tr><td><code>conv4</code></td><td>3×3</td><td>1</td><td>1</td><td>48→48</td><td>2×2</td><td>3×3×48</td></tr>
+              <tr><td>GAP</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>48×1</td></tr>
+              <tr><td>FC</td><td>—</td><td>—</td><td>—</td><td>48→2</td><td>—</td><td>2×1</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Training pipeline</h2>
+        <p>
+          Naively quantizing a float model to int8 after training lost too much
+          accuracy on this task. The training pipeline went through three stages:
+        </p>
+        <ol>
+          <li><strong>Float training with real BatchNorm</strong> — train the network normally in PyTorch with BatchNorm layers after each conv. BatchNorm helps convergence but can't run in the RTL directly — it requires per-batch statistics that don't exist at inference time.</li>
+          <li><strong>BatchNorm folding</strong> — algebraically merge each conv layer's BatchNorm scale and shift into the conv weights and biases. After folding, the network is mathematically equivalent at float precision but has no BatchNorm nodes — it can be implemented as plain conv + bias + ReLU in hardware.</li>
+          <li><strong>QAT fine-tuning</strong> — fine-tune the folded model under real int8 quantization-aware arithmetic. This is what closes most of the gap between float and fixed-point accuracy.</li>
+        </ol>
+        <p>
+          On top of this, <strong>knowledge distillation</strong> was used: the small
+          model being deployed was trained against both the ground-truth hard labels
+          and the soft probability outputs of a larger teacher network. The teacher's
+          soft outputs carry richer gradient signal than one-hot labels — the student
+          learns not just which class is correct but how similar the model thinks
+          classes are. This measurably improved quantized accuracy from 77.7% to 83.2%
+          at zero extra hardware cost.
+        </p>
+
+        <h2>Dataset</h2>
+        <p>
+          The INRIA Person dataset — full uncropped scene photos, not tight crops
+          around people. This is a harder problem than the finger counter: backgrounds
+          are varied (streets, parking lots, buildings), lighting changes, and people
+          appear at different scales and positions within the frame.
+        </p>
+        <p>
+          The raw dataset had a class imbalance. During training, tracking per-class
+          accuracy revealed the model was collapsing — biasing toward the majority
+          class to get easy loss reduction. The fix was to balance the dataset to 614
+          images per class before training, which resolved the collapse and let the
+          model learn a real decision boundary.
+        </p>
+
+        <h2>Accuracy — simulation vs. hardware</h2>
+        <p>
+          The hardware accuracy (83.3%, measured over a 60-image batch test sent via
+          UART to the real flashed board) is nearly identical to the quantized
+          simulation accuracy (83.2%) run in PyTorch before deployment. This is the
+          result that matters: it means the RTL faithfully implements the trained
+          model — there is no hardware-specific degradation beyond what the int8
+          quantization itself already accounts for in simulation.
+        </p>
+
+        <h2>BRAM budget</h2>
+        <p>
+          BRAM is the binding resource on the GW2A-18C, not logic. The four feature
+          map buffers (24×24×12, 12×12×24, 6×6×48, 3×3×48) use approximately 32 of
+          the 46 available BSRAM blocks. The 4×4 pool on CONV1 was specifically chosen
+          to control this: a standard 2×2 pool after CONV1 would produce a 48×48×12
+          feature map instead of 24×24×12, doubling the BSRAM requirement for that
+          buffer and pushing the total past what the 20K can fit.
+        </p>
+
+        <h2>What was hard</h2>
+        <p>
+          The class-imbalance issue was the most time-consuming part of the training
+          phase. A model that achieves 60%+ accuracy by always predicting the majority
+          class is useless for detection — it took tracking per-class precision and
+          recall separately (not just overall accuracy) to diagnose what was happening.
+        </p>
+        <p>
+          Knowledge distillation added training complexity: you need a pretrained
+          teacher, a temperature-scaled softmax to spread the soft targets, and a
+          loss that blends distillation loss with the hard-label cross-entropy.
+          Getting the blend ratio right required experimentation. The jump from 77.7%
+          to 83.2% justified the effort, but it was not a drop-in change.
+        </p>
+        <p>
+          On the RTL side, going from three to four conv layers with a wider channel
+          count (up to 48 vs. 32 in the finger counter) required careful BSRAM
+          partitioning. The 4×4 pool decision on CONV1 emerged from manually working
+          through the BRAM budget before writing any RTL — verifying the fit in a
+          spreadsheet before committing to the architecture.
+        </p>
+
+        <h2>What's next</h2>
+        <ul>
+          <li><strong>Live camera path</strong> — restore the OV5640 DVP input to eliminate the PC middleman; the UART path was chosen for debuggability, not as the final interface</li>
+          <li><strong>Multi-class extension</strong> — extend from binary (person / no person) to pedestrian counting or activity classification; will require a larger dataset and likely a channel-compression strategy to stay within the 20K's BSRAM budget</li>
+          <li><strong>On-chip display</strong> — drive an HDMI or SPI display from the FPGA showing the prediction result directly, without the UART return path to a PC</li>
+        </ul>
+
+      </section>
+
+      <div class="page-end">
+        <a href="../index.html#projects">← back to projects</a>
+        <a href="https://github.com/Prateek2174/tang_primer_human_cnn" target="_blank" rel="noopener">view on GitHub →</a>
+      </div>
+    </article>
+  </main>
+  <footer class="footer">
+    <p>© <span id="year"></span> Prateek Singh.</p>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script src="../theme.js" defer></script>
+  <script src="../toc.js" defer></script>
+</body>
+</html>
