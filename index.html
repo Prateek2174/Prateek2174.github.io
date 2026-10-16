@@ -77,7 +77,7 @@
 
         <div class="update-widget">
           <span class="update-widget-label">// updates</span>
-          <ul class="update-widget-feed">
+          <ul class="update-widget-feed" id="update-widget-feed">
             <li><a href="projects/fpga-human-presence.html"><time>Sep 2026</time><span class="update-tag update-tag--added">Added</span><span>FPGA human presence detector page →</span></a></li>
             <li><a href="projects/fpga-cnn.html"><time>Aug 2026</time><span class="update-tag update-tag--added">Added</span><span>FPGA CNN accelerator page →</span></a></li>
             <li><a href="projects/stm32-ev-vcu-rust.html"><time>Aug 2026</time><span class="update-tag update-tag--added">Added</span><span>Timberwolf VCU page →</span></a></li>
@@ -453,5 +453,69 @@
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
   <script src="theme.js" defer></script>
+  <script>
+  (function () {
+    const OWNER = 'Prateek2174';
+    const REPOS = [
+      { repo: 'tang-primer-cnn',        page: 'projects/fpga-cnn.html',              label: 'FPGA CNN accelerator' },
+      { repo: 'tang_primer_human_cnn',  page: 'projects/fpga-human-presence.html',   label: 'FPGA human presence' },
+      { repo: 'stm32-quadcopter',       page: 'projects/stm32-quadcopter.html',       label: 'STM32 quadcopter' },
+      { repo: 'uart_bootloader',        page: 'projects/uart-bootloader.html',        label: 'UART bootloader' },
+      { repo: 'sai',                    page: 'projects/stm32-sai.html',              label: 'SAI audio driver' },
+      { repo: 'usb',                    page: 'projects/stm32-usb.html',              label: 'STM32 USB' },
+      { repo: 'F446RE_bare_metal',      page: 'projects/stm32-bare-metal.html',       label: 'Bare-metal F446RE' },
+    ];
+
+    function esc(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function fmtDate(iso) {
+      const d = new Date(iso);
+      return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    }
+
+    function trunc(s, n) {
+      const first = s.split('\n')[0];
+      return first.length > n ? first.slice(0, n).trimEnd() + '…' : first;
+    }
+
+    const feed = document.getElementById('update-widget-feed');
+    if (!feed) return;
+
+    Promise.allSettled(
+      REPOS.map(r =>
+        fetch('https://api.github.com/repos/' + OWNER + '/' + r.repo + '/commits?per_page=3')
+          .then(function(res) { return res.ok ? res.json() : []; })
+          .then(function(commits) {
+            return commits.map(function(c) { return { meta: r, commit: c }; });
+          })
+          .catch(function() { return []; })
+      )
+    ).then(function(results) {
+      var all = [];
+      results.forEach(function(r) {
+        if (r.status === 'fulfilled') all = all.concat(r.value);
+      });
+
+      if (all.length === 0) return;
+
+      all.sort(function(a, b) {
+        return new Date(b.commit.commit.author.date) - new Date(a.commit.commit.author.date);
+      });
+
+      var top = all.slice(0, 6);
+      feed.innerHTML = top.map(function(item) {
+        var msg = trunc(item.commit.commit.message, 48);
+        var date = fmtDate(item.commit.commit.author.date);
+        return '<li><a href="' + item.meta.page + '">'
+          + '<time>' + date + '</time>'
+          + '<span class="update-tag update-tag--commit">' + esc(item.meta.label) + '</span>'
+          + '<span>' + esc(msg) + ' →</span>'
+          + '</a></li>';
+      }).join('');
+    });
+  })();
+  </script>
 </body>
 </html>

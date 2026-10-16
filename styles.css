@@ -671,6 +671,7 @@ main {
 .update-tag--shipped { background: color-mix(in srgb, #22c55e 12%, transparent); color: #22c55e; }
 .update-tag--wip     { background: color-mix(in srgb, #f59e0b 12%, transparent); color: #f59e0b; }
 .update-tag--updated { background: color-mix(in srgb, #a78bfa 12%, transparent); color: #a78bfa; }
+.update-tag--commit  { background: color-mix(in srgb, #60a5fa 12%, transparent); color: #60a5fa; }
 
 /* ---------- data table ---------- */
 .table-wrap {
